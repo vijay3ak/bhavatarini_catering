@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-playfair: 'Playfair Display', Georgia, serif;
+  --font-dm-sans: 'DM Sans', Arial, sans-serif;
+  --green: #123c2c;
+  --green2: #1c573e;
+  --leaf: #718b62;
+  --cream: #faf8f1;
+  --cream2: #eee7d7;
+  --gold: #c7a45b;
+  --gold-light: #e2ce94;
+  --gold-dark: #997b3e;
+  --ink: #17271e;
+  --muted: #6f786f;
+  --line: #e5dece;
+  --white: #fffefa;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 118px;
+    background-color: var(--cream);
+    color: var(--ink);
+  }
+
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-dm-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair);
+  }
+
+  section[id] {
+    scroll-margin-top: 118px;
+  }
+}
+
+/* Common Background Gradient Helpers matching v2 Prototype */
+.bg-hero-radial {
+  background: radial-gradient(ellipse at 15% 20%, #315d43 0%, #17432f 45%, #0b291d 100%);
+}
+
+.bg-experience-radial {
+  background: radial-gradient(ellipse at 85% 10%, #28553d 0%, #163e2b 42%, #0c2b1e 100%);
+}
+
+.bg-cta-radial {
+  background: radial-gradient(ellipse at 90% 0%, #2c6244 0%, #17432f 48%, #0e3021 100%);
+}
+
+.bg-footer-gradient {
+  background: linear-gradient(120deg, #09271a 0%, #123c2a 100%);
+}
+
+.bg-btn-gold {
+  background: linear-gradient(135deg, #d4ba78 0%, #b89347 100%);
+}
+
+.bg-btn-green {
+  background: linear-gradient(135deg, #174a34 0%, #0d3021 100%);
+}
+
+.bg-btn-green:hover {
+  background: linear-gradient(135deg, #286246 0%, #17432f 100%);
+}
+
+/* Keyframe Animations from v2 Prototype */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes softPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(216, 182, 92, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(216, 182, 92, 0.18);
+  }
+}
+
+.animate-fade-in-up-1 {
+  animation: fadeInUp 0.8s 0.08s both;
+}
+
+.animate-fade-in-up-2 {
+  animation: fadeInUp 0.9s 0.18s both;
+}
+
+.animate-fade-in-up-3 {
+  animation: fadeInUp 0.9s 0.3s both;
+}
+
+.animate-fade-in-up-4 {
+  animation: fadeInUp 0.9s 0.42s both;
+}
+
+.animate-soft-pulse {
+  animation: softPulse 3.2s ease-in-out infinite;
+}
+
+/* Button Sheen Light Reflection Sweep */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.btn-sheen::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -80%;
+  left: -45%;
+  width: 32%;
+  height: 260%;
+  transform: rotate(25deg);
+  background: rgba(255, 255, 255, 0.24);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.btn-sheen:hover::before {
+  left: 125%;
+}
+
+/* Section Head Letter Spacing Micro-interaction */
+.section-head h2 {
+  transition: letter-spacing 0.35s ease;
+}
+
+.section-head:hover h2 {
+  letter-spacing: 0.3px;
+}
+
+/* Scroll Reveal Animations from Prototype */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-34px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.reveal-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(34px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.reveal-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .reveal-left,
+  .reveal-right {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

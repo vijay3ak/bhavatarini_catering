@@ -1,0 +1,42 @@
+# Dependencies
+/node_modules/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Next.js & Build Outputs
+/.next/
+/out/
+/build/
+/dist/
+
+# Environment Variables & Secrets (Never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Testing
+/coverage/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+
+# Misc & Temp
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+*.tmp
+*.bak
+.vercel
