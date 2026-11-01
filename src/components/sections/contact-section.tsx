@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { siteConfig } from "@/lib/config/site";
 import { CheckCircle2, AlertCircle, Info, ExternalLink } from "lucide-react";
 
@@ -20,6 +20,55 @@ export function ContactSection() {
     open: boolean;
     data?: typeof formData;
   }>({ open: false });
+
+  const submitBtnRef = useRef<HTMLButtonElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  const closeModal = () => {
+    setDevStatusModal({ open: false });
+    submitBtnRef.current?.focus();
+  };
+
+  useEffect(() => {
+    if (!devStatusModal.open) return;
+
+    const timer = setTimeout(() => {
+      closeBtnRef.current?.focus();
+    }, 50);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Esc") {
+        e.preventDefault();
+        closeModal();
+      } else if (e.key === "Tab" && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [devStatusModal.open]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -307,6 +356,7 @@ export function ContactSection() {
 
             {/* Submit Button */}
             <button
+              ref={submitBtnRef}
               type="submit"
               className="btn-sheen sm:col-span-2 h-[46px] inline-flex items-center justify-center gap-2 rounded-[2px] text-[13px] font-bold tracking-[0.4px] text-[#f4ecda] border border-[#c7a45b]/35 shadow-md transition-all duration-300 hover:brightness-110 active:scale-[0.98] cursor-pointer"
               style={{
@@ -324,11 +374,22 @@ export function ContactSection() {
 
       {/* Phase 2 Development Verification Modal */}
       {devStatusModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#fffefa] border border-[#e5ddcd] rounded-[2px] max-w-lg w-full p-6 shadow-2xl space-y-4">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        >
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dev-modal-title"
+            className="bg-[#fffefa] border border-[#e5ddcd] rounded-[2px] max-w-lg w-full p-6 shadow-2xl space-y-4"
+          >
             <div className="flex items-center gap-2 text-emerald-800">
               <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <h4 className="font-serif text-lg font-bold">
+              <h4 id="dev-modal-title" className="font-serif text-lg font-bold">
                 Frontend Validation Passed
               </h4>
             </div>
@@ -369,9 +430,10 @@ export function ContactSection() {
               ) : null}
 
               <button
+                ref={closeBtnRef}
                 type="button"
-                onClick={() => setDevStatusModal({ open: false })}
-                className="px-4 py-2 text-xs font-bold rounded-[2px] text-white bg-brand-green hover:bg-brand-green2 transition-colors"
+                onClick={closeModal}
+                className="px-4 py-2 text-xs font-bold rounded-[2px] text-white bg-brand-green hover:bg-brand-green2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
               >
                 Close
               </button>

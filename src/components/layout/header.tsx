@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ActiveSectionInfo } from "@/lib/hooks/use-active-section";
 import { Menu, X } from "lucide-react";
@@ -19,6 +19,21 @@ const NAV_LINKS = [
 
 export function Header({ activeSection }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Esc") {
+        setMobileMenuOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen]);
 
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
@@ -94,9 +109,11 @@ export function Header({ activeSection }: HeaderProps) {
 
           <button
             id="toggle"
+            ref={toggleRef}
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
+            aria-controls="nav-mobile"
             aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
             className="md:hidden w-9 h-9 flex items-center justify-center text-[#173f2d] rounded-sm hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold transition-colors"
           >
