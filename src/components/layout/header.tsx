@@ -56,13 +56,13 @@ export function Header({ activeSection }: HeaderProps) {
           >
             ♨
           </span>
-          <span className="flex flex-col">
-            <span className="font-serif text-[19px] sm:text-[21px] max-sm:text-[17px] font-bold leading-none tracking-[-0.2px] text-[#173f2d]">
+          <span className="flex flex-col justify-center">
+            <span className="font-serif text-[20px] sm:text-[22px] max-sm:text-[18px] font-bold leading-none tracking-[-0.3px] text-[#123c2c] transition-colors group-hover:text-[#1c573e]">
               Bhavatarini
             </span>
-            <small className="font-sans text-[9px] max-sm:text-[8px] font-semibold tracking-[1.8px] max-sm:tracking-[1.2px] uppercase text-[#876d3a] mt-[3px]">
+            <span className="font-sans text-[9px] sm:text-[9.5px] max-sm:text-[8px] font-bold tracking-[2.4px] max-sm:tracking-[1.6px] uppercase text-[#997b3e] mt-[3px] leading-none">
               Catering Service
-            </small>
+            </span>
           </span>
         </Link>
 

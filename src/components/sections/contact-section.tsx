@@ -2,23 +2,45 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { siteConfig } from "@/lib/config/site";
-import { CheckCircle2, AlertCircle, Info, ExternalLink } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  Info,
+  ExternalLink,
+  MapPin,
+  Phone,
+  MessageSquare,
+} from "lucide-react";
+
+interface ContactFormData {
+  name: string;
+  phone: string;
+  email: string;
+  kind: string;
+  food: string;
+  qty: string;
+  eventDate: string;
+  location: string;
+  details: string;
+}
 
 export function ContactSection() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     phone: "",
-    org: "",
+    email: "",
     kind: "Corporate office",
     food: "Full meals",
-    qty: "50–100",
+    qty: "",
+    eventDate: "",
+    location: "",
     details: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [devStatusModal, setDevStatusModal] = useState<{
     open: boolean;
-    data?: typeof formData;
+    data?: ContactFormData;
   }>({ open: false });
 
   const submitBtnRef = useRef<HTMLButtonElement>(null);
@@ -77,11 +99,23 @@ export function ContactSection() {
       newErrors.name = "Please enter your name.";
     }
 
-    const cleanPhone = formData.phone.replace(/[^0-9]/g, "");
+    const cleanPhone = formData.phone.trim();
     if (!cleanPhone) {
       newErrors.phone = "Please enter your 10-digit mobile number.";
-    } else if (cleanPhone.length !== 10) {
-      newErrors.phone = "Mobile number must be exactly 10 digits.";
+    } else if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      newErrors.phone =
+        "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.";
+    }
+
+    if (
+      formData.email.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
+    ) {
+      newErrors.email = "Please enter a valid email address or leave blank.";
+    }
+
+    if (!formData.location.trim()) {
+      newErrors.location = "Please enter your location or event area in Coimbatore.";
     }
 
     setErrors(newErrors);
@@ -95,14 +129,27 @@ export function ContactSection() {
       return;
     }
 
-    // In Phase 2: Show clear development-stage verification message
+    // Phase 2: Show clear development verification message
     // Never claim fake database persistence or simulate false success
     setDevStatusModal({ open: true, data: { ...formData } });
   };
 
   const buildWhatsAppPreviewUrl = () => {
     const v = formData;
-    const msg = `Hello Bhavatarini Catering Service! I would like to enquire about catering.\nName: ${v.name}\nMobile: ${v.phone}\nOrganisation: ${v.org || "Not specified"}\nRequirement: ${v.kind}\nFood preference: ${v.food}\nQuantity: ${v.qty}\nDetails: ${v.details || "Not specified"}`;
+    const lines = [
+      "Hello Bhavatarini Catering Service! I would like to enquire about catering.",
+      `Name: ${v.name}`,
+      `Mobile: ${v.phone}`,
+      v.email ? `Email: ${v.email}` : null,
+      `Location / Area: ${v.location}`,
+      `Requirement: ${v.kind}`,
+      `Food Preference: ${v.food}`,
+      v.qty ? `Approx. Quantity: ${v.qty}` : null,
+      v.eventDate ? `Event Date: ${v.eventDate}` : null,
+      v.details ? `Additional Details: ${v.details}` : null,
+    ].filter(Boolean);
+
+    const msg = lines.join("\n");
     const destinationNumber = siteConfig.contact.whatsapp.replace(/[^0-9]/g, "");
     return destinationNumber
       ? `https://wa.me/${destinationNumber}?text=${encodeURIComponent(msg)}`
@@ -127,7 +174,7 @@ export function ContactSection() {
             Let’s Plan Your Catering
           </h2>
           <p className="text-[15px] max-sm:text-[13px] leading-[1.8] text-brand-muted mt-3 mb-0">
-            Share a few details and we&apos;ll get back to you.
+            Share a few details and we&apos;ll get back to you with custom catering arrangements.
           </p>
           <div
             aria-hidden="true"
@@ -135,73 +182,20 @@ export function ContactSection() {
           />
         </div>
 
-        {/* Contact Grid */}
-        <div className="contact-grid grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-start">
-          {/* Contact Info Column */}
-          <div className="contact-info py-2">
-            <h3 className="font-serif text-[36px] max-sm:text-[28px] leading-[1.12] text-brand-green font-semibold mb-5">
-              Made for teams, gatherings and good food.
-            </h3>
-
-            <p className="text-[14px] leading-[1.9] text-[#69746a] mb-6">
-              Whether you need regular office meals or catering for a one-time event, send us your requirements.
-            </p>
-
-            <div className="space-y-3.5 text-[14px] leading-relaxed text-[#17271e]">
-              {siteConfig.serviceArea ? (
-                <p className="m-0">
-                  <strong className="font-bold text-brand-green">Service area:</strong>{" "}
-                  <span className="text-[#69746a]">{siteConfig.serviceArea}</span>
-                </p>
-              ) : null}
-
-              {siteConfig.contact.phone ? (
-                <p className="m-0">
-                  <strong className="font-bold text-brand-green">Phone:</strong>{" "}
-                  <a
-                    href={`tel:${siteConfig.contact.phone}`}
-                    className="text-brand-green underline hover:text-brand-goldDark"
-                  >
-                    {siteConfig.contact.phone}
-                  </a>
-                </p>
-              ) : null}
-
-              {siteConfig.contact.whatsapp ? (
-                <p className="m-0">
-                  <strong className="font-bold text-brand-green">WhatsApp:</strong>{" "}
-                  <a
-                    href={`https://wa.me/${siteConfig.contact.whatsapp.replace(/[^0-9]/g, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-brand-green underline hover:text-brand-goldDark"
-                  >
-                    +{siteConfig.contact.whatsapp}
-                  </a>
-                </p>
-              ) : null}
-
-              {!siteConfig.contact.phone && !siteConfig.contact.whatsapp ? (
-                <p className="m-0 text-xs text-brand-muted bg-[#faf8f1] p-3 rounded border border-brand-line">
-                  <strong className="font-bold text-brand-green block mb-1">
-                    Enquiries & Bookings:
-                  </strong>
-                  Please submit your catering details using the form. Our team coordinates customized menus and scheduling directly.
-                </p>
-              ) : null}
-            </div>
-          </div>
-
-          {/* Form Column */}
+        {/* Form Container (Top Visual Priority) */}
+        <div className="max-w-3xl mx-auto">
           <form
             id="enquiry"
             onSubmit={handleSubmit}
             noValidate
             className="form bg-[#fffefa] border border-[#e5ddcd] border-t-[3px] border-t-[#c7a45b] rounded-[2px] p-9 max-sm:p-6 shadow-[0_20px_55px_rgba(31,47,34,0.07)] grid grid-cols-1 sm:grid-cols-2 gap-5"
           >
-            {/* Field: Name */}
+            {/* Field 1: Name (Required) */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
+              <label
+                htmlFor="name"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
                 Your name <span className="text-red-600">*</span>
               </label>
               <input
@@ -209,8 +203,10 @@ export function ContactSection() {
                 name="name"
                 type="text"
                 required
-                placeholder="Name"
+                placeholder="Full Name"
                 value={formData.name}
+                aria-invalid={Boolean(errors.name)}
+                aria-describedby={errors.name ? "name-error" : undefined}
                 onChange={(e) => {
                   setFormData({ ...formData, name: e.target.value });
                   if (errors.name) setErrors({ ...errors, name: "" });
@@ -220,27 +216,35 @@ export function ContactSection() {
                 } px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20`}
               />
               {errors.name && (
-                <span className="text-[11px] text-red-600 flex items-center gap-1">
+                <span id="name-error" className="text-[11px] text-red-600 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" /> {errors.name}
                 </span>
               )}
             </div>
 
-            {/* Field: Phone */}
+            {/* Field 2: Mobile Number (Required, Strict Numeric 10-digit) */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="phone" className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
+              <label
+                htmlFor="phone"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
                 Mobile number <span className="text-red-600">*</span>
               </label>
               <input
                 id="phone"
                 name="phone"
                 type="tel"
-                inputMode="tel"
+                inputMode="numeric"
+                autoComplete="tel"
                 required
+                maxLength={10}
                 placeholder="10-digit mobile number"
                 value={formData.phone}
+                aria-invalid={Boolean(errors.phone)}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
                 onChange={(e) => {
-                  setFormData({ ...formData, phone: e.target.value });
+                  const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setFormData({ ...formData, phone: digitsOnly });
                   if (errors.phone) setErrors({ ...errors, phone: "" });
                 }}
                 className={`w-full bg-[#faf7ef] border ${
@@ -248,34 +252,82 @@ export function ContactSection() {
                 } px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20`}
               />
               {errors.phone && (
-                <span className="text-[11px] text-red-600 flex items-center gap-1">
+                <span id="phone-error" className="text-[11px] text-red-600 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" /> {errors.phone}
                 </span>
               )}
             </div>
 
-            {/* Field: Organisation */}
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label htmlFor="org" className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
-                Company / Organisation <span className="text-gray-400 font-normal">(Optional)</span>
+            {/* Field 3: Email (Optional) */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="email"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
+                Email address <span className="text-gray-400 font-normal lowercase">(optional)</span>
               </label>
               <input
-                id="org"
-                name="org"
-                type="text"
-                placeholder="Company or event name"
-                value={formData.org}
-                onChange={(e) =>
-                  setFormData({ ...formData, org: e.target.value })
-                }
-                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20"
+                id="email"
+                name="email"
+                type="email"
+                placeholder="name@example.com"
+                value={formData.email}
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                onChange={(e) => {
+                  setFormData({ ...formData, email: e.target.value });
+                  if (errors.email) setErrors({ ...errors, email: "" });
+                }}
+                className={`w-full bg-[#faf7ef] border ${
+                  errors.email ? "border-red-500" : "border-[#dcd3bf]"
+                } px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20`}
               />
+              {errors.email && (
+                <span id="email-error" className="text-[11px] text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> {errors.email}
+                </span>
+              )}
             </div>
 
-            {/* Field: Requirement Type */}
+            {/* Field 4: Location / Area (Required) */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="kind" className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
-                Requirement type
+              <label
+                htmlFor="location"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
+                Location / Area <span className="text-red-600">*</span>
+              </label>
+              <input
+                id="location"
+                name="location"
+                type="text"
+                required
+                placeholder="e.g. Gandhipuram, RS Puram, Peelamedu"
+                value={formData.location}
+                aria-invalid={Boolean(errors.location)}
+                aria-describedby={errors.location ? "location-error" : undefined}
+                onChange={(e) => {
+                  setFormData({ ...formData, location: e.target.value });
+                  if (errors.location) setErrors({ ...errors, location: "" });
+                }}
+                className={`w-full bg-[#faf7ef] border ${
+                  errors.location ? "border-red-500" : "border-[#dcd3bf]"
+                } px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20`}
+              />
+              {errors.location && (
+                <span id="location-error" className="text-[11px] text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> {errors.location}
+                </span>
+              )}
+            </div>
+
+            {/* Field 5: Requirement Type (Required) */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="kind"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
+                Requirement type <span className="text-red-600">*</span>
               </label>
               <select
                 id="kind"
@@ -284,7 +336,7 @@ export function ContactSection() {
                 onChange={(e) =>
                   setFormData({ ...formData, kind: e.target.value })
                 }
-                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20"
+                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20 cursor-pointer"
               >
                 <option value="Corporate office">Corporate office</option>
                 <option value="Startup / team">Startup / team</option>
@@ -293,10 +345,13 @@ export function ContactSection() {
               </select>
             </div>
 
-            {/* Field: Food Preference */}
+            {/* Field 6: Food Preference (Required) */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="food" className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
-                Food preference
+              <label
+                htmlFor="food"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
+                Food preference <span className="text-red-600">*</span>
               </label>
               <select
                 id="food"
@@ -305,7 +360,7 @@ export function ContactSection() {
                 onChange={(e) =>
                   setFormData({ ...formData, food: e.target.value })
                 }
-                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20"
+                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20 cursor-pointer"
               >
                 <option value="Full meals">Full meals</option>
                 <option value="Customised tiffin">Customised tiffin</option>
@@ -314,10 +369,13 @@ export function ContactSection() {
               </select>
             </div>
 
-            {/* Field: Approx Quantity */}
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label htmlFor="qty" className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
-                Approx. quantity
+            {/* Field 7: Approx Quantity (Optional) */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="qty"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
+                Approx. quantity <span className="text-gray-400 font-normal lowercase">(optional)</span>
               </label>
               <select
                 id="qty"
@@ -326,26 +384,50 @@ export function ContactSection() {
                 onChange={(e) =>
                   setFormData({ ...formData, qty: e.target.value })
                 }
-                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20"
+                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20 cursor-pointer"
               >
-                <option value="Below 50">Below 50</option>
-                <option value="50–100">50–100</option>
-                <option value="100–200">100–200</option>
-                <option value="200–500">200–500</option>
-                <option value="Above 500">Above 500</option>
+                <option value="">Select quantity range</option>
+                <option value="Below 50">Below 50 persons</option>
+                <option value="50–100">50–100 persons</option>
+                <option value="100–200">100–200 persons</option>
+                <option value="200–500">200–500 persons</option>
+                <option value="Above 500">Above 500 persons</option>
               </select>
             </div>
 
-            {/* Field: Details */}
+            {/* Field 8: Event / Date (Optional) */}
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="eventDate"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
+                Event date <span className="text-gray-400 font-normal lowercase">(optional)</span>
+              </label>
+              <input
+                id="eventDate"
+                name="eventDate"
+                type="date"
+                value={formData.eventDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, eventDate: e.target.value })
+                }
+                className="w-full bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20"
+              />
+            </div>
+
+            {/* Field 9: Additional Requirements (Optional, Textarea) */}
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label htmlFor="details" className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
-                Date, location and other details
+              <label
+                htmlFor="details"
+                className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider"
+              >
+                Additional requirements <span className="text-gray-400 font-normal lowercase">(optional)</span>
               </label>
               <textarea
                 id="details"
                 name="details"
                 rows={3}
-                placeholder="Tell us your date, delivery location, frequency or special requests"
+                placeholder="Specific dishes, meal timings, delivery notes, or special requests"
                 value={formData.details}
                 onChange={(e) =>
                   setFormData({ ...formData, details: e.target.value })
@@ -370,6 +452,85 @@ export function ContactSection() {
             </button>
           </form>
         </div>
+
+        {/* Supporting Contact Info & Direct Coordination (Moved Below Form) */}
+        <div className="mt-14 pt-10 border-t border-[#dfd6c0] max-w-3xl mx-auto">
+          <div className="text-center mb-8">
+            <h3 className="font-serif text-[26px] max-sm:text-[22px] leading-[1.25] text-brand-green font-semibold mb-3">
+              Made for teams, gatherings and good food.
+            </h3>
+            <p className="text-[14px] max-sm:text-[13px] leading-[1.8] text-[#69746a] max-w-xl mx-auto m-0">
+              Whether you need regular office meals or catering for a one-time event, our team coordinates customized menus and scheduling directly.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Service Location Card */}
+            <div className="p-4 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_6px_18px_rgba(24,52,35,0.03)] flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#8e7139]">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-[11px] font-bold text-[#8e7139] uppercase tracking-wider mb-0.5">
+                  Location
+                </span>
+                <span className="text-[13px] font-medium text-[#17271e]">
+                  {siteConfig.location}
+                </span>
+              </div>
+            </div>
+
+            {/* Direct Phone Card */}
+            <div className="p-4 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_6px_18px_rgba(24,52,35,0.03)] flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#8e7139]">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-[11px] font-bold text-[#8e7139] uppercase tracking-wider mb-0.5">
+                  Direct Phone
+                </span>
+                {siteConfig.contact.phone ? (
+                  <a
+                    href={`tel:${siteConfig.contact.phone}`}
+                    className="text-[13px] font-medium text-brand-green hover:underline"
+                  >
+                    {siteConfig.contact.phone}
+                  </a>
+                ) : (
+                  <span className="text-[12px] text-brand-muted">
+                    Via Enquiry Form
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* WhatsApp Card */}
+            <div className="p-4 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_6px_18px_rgba(24,52,35,0.03)] flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#8e7139]">
+                <MessageSquare className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-[11px] font-bold text-[#8e7139] uppercase tracking-wider mb-0.5">
+                  WhatsApp
+                </span>
+                {siteConfig.contact.whatsapp ? (
+                  <a
+                    href={`https://wa.me/${siteConfig.contact.whatsapp.replace(/[^0-9]/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[13px] font-medium text-brand-green hover:underline"
+                  >
+                    +{siteConfig.contact.whatsapp}
+                  </a>
+                ) : (
+                  <span className="text-[12px] text-brand-muted">
+                    Available on Enquiry
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Phase 2 Development Verification Modal */}
@@ -385,7 +546,7 @@ export function ContactSection() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="dev-modal-title"
-            className="bg-[#fffefa] border border-[#e5ddcd] rounded-[2px] max-w-lg w-full p-6 shadow-2xl space-y-4"
+            className="bg-[#fffefa] border border-[#e5ddcd] rounded-[2px] max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center gap-2 text-emerald-800">
               <CheckCircle2 className="w-5 h-5 text-emerald-600" />
@@ -401,11 +562,13 @@ export function ContactSection() {
               <ul className="space-y-1 text-brand-muted">
                 <li><strong>Name:</strong> {devStatusModal.data?.name}</li>
                 <li><strong>Mobile:</strong> {devStatusModal.data?.phone}</li>
-                <li><strong>Org:</strong> {devStatusModal.data?.org || "None"}</li>
+                <li><strong>Email:</strong> {devStatusModal.data?.email || "Not specified"}</li>
+                <li><strong>Location / Area:</strong> {devStatusModal.data?.location}</li>
                 <li><strong>Requirement:</strong> {devStatusModal.data?.kind}</li>
                 <li><strong>Food:</strong> {devStatusModal.data?.food}</li>
-                <li><strong>Quantity:</strong> {devStatusModal.data?.qty}</li>
-                <li><strong>Details:</strong> {devStatusModal.data?.details || "None"}</li>
+                <li><strong>Quantity:</strong> {devStatusModal.data?.qty || "Not specified"}</li>
+                <li><strong>Event Date:</strong> {devStatusModal.data?.eventDate || "Not specified"}</li>
+                <li><strong>Additional Requirements:</strong> {devStatusModal.data?.details || "Not specified"}</li>
               </ul>
             </div>
 

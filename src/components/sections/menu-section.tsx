@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { UtensilsCrossed, CookingPot } from "lucide-react";
 
 const FULL_MEALS_ITEMS = [
   "Rice",
@@ -30,7 +31,7 @@ export function MenuSection() {
       id="menu"
       className="py-24 max-sm:py-14"
       style={{
-        background: "linear-gradient(180deg, #f0eadb 0%, #f9f6ed 100%)",
+        background: "linear-gradient(180deg, #faf8f1 0%, #f5efe2 100%)",
       }}
     >
       <div className="max-w-container mx-auto px-4 sm:px-[5%]">
@@ -66,12 +67,15 @@ export function MenuSection() {
             </div>
 
             <div className="menu-copy p-10 max-sm:p-6 flex-1 flex flex-col justify-center">
-              <h3 className="font-serif text-[29px] max-sm:text-2xl leading-[1.2] text-[#153e2c] font-semibold mb-3">
-                ❧ Full Meals
-              </h3>
+              <div className="flex items-center gap-2.5 mb-3">
+                <UtensilsCrossed className="w-5 h-5 text-[#a18448] shrink-0" strokeWidth={1.75} />
+                <h3 className="font-serif text-[26px] max-sm:text-2xl leading-[1.2] text-[#153e2c] font-semibold m-0">
+                  Full Meals
+                </h3>
+              </div>
               <div className="mb-4">
                 <span className="inline-block bg-[#eee5d0] border border-[#dcd0b5] text-[#8e7139] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  Our Signature Menu
+                  Traditional Full Meals
                 </span>
               </div>
               <p className="text-[#697469] text-[14px] max-sm:text-[13px] leading-[1.9] m-0">
@@ -90,28 +94,26 @@ export function MenuSection() {
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover object-center transition-all duration-700 ease-out group-hover:scale-[1.035] group-hover:saturate-[1.12]"
               />
-              <span className="absolute left-[18px] bottom-[18px] px-3 py-2 bg-[#0d2a1d]/85 border border-[#dcc281]/55 text-[#f2dfaa] text-[8px] tracking-[1.8px] font-bold uppercase rounded-[1px] shadow-sm pointer-events-none">
-                CUSTOMISED TIFFIN
-              </span>
             </div>
 
             <div className="menu-copy p-10 max-sm:p-6 flex-1 flex flex-col justify-center">
-              <h3 className="font-serif text-[29px] max-sm:text-2xl leading-[1.2] text-[#153e2c] font-semibold mb-3">
-                ♨ Tiffin (Customised)
-              </h3>
-              <p className="text-[#697469] text-[14px] max-sm:text-[13px] leading-[1.8] m-0 mb-4">
+              <div className="flex items-center gap-2.5 mb-3">
+                <CookingPot className="w-5 h-5 text-[#a18448] shrink-0" strokeWidth={1.75} />
+                <h3 className="font-serif text-[26px] max-sm:text-2xl leading-[1.2] text-[#153e2c] font-semibold m-0">
+                  Customised Tiffin
+                </h3>
+              </div>
+              <div className="mb-3">
+                <span className="inline-block bg-[#eee5d0] border border-[#dcd0b5] text-[#8e7139] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  Customised Selections
+                </span>
+              </div>
+              <p className="text-[#697469] text-[14px] max-sm:text-[13px] leading-[1.8] m-0 mb-3">
                 Tiffin combinations curated based on your team&apos;s needs and preferences.
               </p>
-              <div className="tags flex flex-wrap gap-[7px]">
-                {TIFFIN_ITEMS.map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-[2px] bg-[#f4f0e5] border border-[#e4dac4] text-[#5c675a] text-[12px] px-3 py-1 font-medium select-none"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
+              <p className="text-[#697469] text-[14px] max-sm:text-[13px] leading-[1.9] m-0">
+                {TIFFIN_ITEMS.join(" · ")}
+              </p>
             </div>
           </article>
         </div>

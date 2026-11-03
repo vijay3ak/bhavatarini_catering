@@ -28,10 +28,14 @@ export type QuantityRange =
 export interface EnquiryPayload {
   name: string;
   phone: string;
+  email?: string;
   organisation?: string;
   requirement_type: RequirementType;
   food_preference: FoodPreference;
-  quantity_range: QuantityRange;
+  quantity_range?: QuantityRange | string;
+  event_date?: string;
+  location: string;
+  additional_requirements?: string;
   details?: string;
   honeypot?: string;
 }
