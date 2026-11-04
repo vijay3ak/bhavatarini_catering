@@ -48,7 +48,7 @@ export function Header({ activeSection }: HeaderProps) {
           href="#home"
           className="flex items-center gap-[11px] text-[#173f2d] no-underline group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-sm shrink-0"
         >
-          {/* Uploaded Chef Logo */}
+          {/* High-Resolution Transparent Chef Logo with Crisp Subpixel Vector/Retina Scaling */}
           <div className="relative w-[40px] h-[40px] max-sm:w-[34px] max-sm:h-[34px] shrink-0 transition-transform group-hover:scale-105">
             <Image
               src="/images/bhavatarini-chef-logo.png"
@@ -56,6 +56,7 @@ export function Header({ activeSection }: HeaderProps) {
               width={40}
               height={40}
               priority
+              unoptimized
               className="w-full h-full object-contain"
             />
           </div>

@@ -19,7 +19,7 @@ export function ExperienceSection() {
 
       <div className="max-w-container mx-auto px-4 sm:px-[5%] relative z-10">
         {/* Top Header */}
-        <div className="mb-11 max-sm:mb-8">
+        <div className="section-head mb-11 max-sm:mb-8">
           <div className="text-[10px] tracking-[2.6px] font-extrabold text-[#e5c878] uppercase mb-4">
             02 — THE BHAVATARINI EXPERIENCE
           </div>
@@ -40,7 +40,7 @@ export function ExperienceSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.05fr_1.25fr_1fr_1fr] gap-3.5">
           {/* Card 01 - Tell us planning */}
           <article
-            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
+            className="experience-card group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[380ms] ease-out hover:-translate-y-2 hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
             style={{
               background: "linear-gradient(145deg, #eee6d2, #dcd0b0)",
             }}
@@ -64,7 +64,7 @@ export function ExperienceSection() {
           </article>
 
           {/* Card 02 - Photo Card */}
-          <article className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)]">
+          <article className="experience-card group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[380ms] ease-out hover:-translate-y-2 hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)]">
             <Image
               src="/images/traditional-meals.jpg"
               alt="Traditional catering setup"
@@ -95,7 +95,7 @@ export function ExperienceSection() {
 
           {/* Card 03 - Choose Menu */}
           <article
-            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
+            className="experience-card group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[380ms] ease-out hover:-translate-y-2 hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
             style={{
               background: "linear-gradient(145deg, #fffdf7, #f0eadb)",
             }}
@@ -114,7 +114,7 @@ export function ExperienceSection() {
 
           {/* Card 04 - We prepare You enjoy */}
           <article
-            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#15261d]"
+            className="experience-card group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[380ms] ease-out hover:-translate-y-2 hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#15261d]"
             style={{
               background: "linear-gradient(145deg, #d8bd7d, #b9954c)",
             }}

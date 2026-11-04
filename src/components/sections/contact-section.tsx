@@ -556,12 +556,21 @@ export function ContactSection() {
               <button
                 ref={submitBtnRef}
                 type="submit"
-                className="w-full sm:w-auto h-[48px] px-8 py-3 rounded-[2px] text-[13px] font-bold tracking-[0.5px] uppercase text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold cursor-pointer inline-flex items-center justify-center"
+                className="w-full sm:w-auto h-[48px] px-8 py-3 rounded-[2px] text-[13px] font-bold tracking-[0.5px] uppercase text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold cursor-pointer inline-flex items-center justify-center relative overflow-hidden group/btn"
                 style={{
                   background: "linear-gradient(135deg, #d4ba78, #b89347)",
                 }}
               >
-                Submit Enquiry →
+                <span className="relative z-10 inline-flex items-center gap-1.5">
+                  Submit Enquiry
+                  <span className="inline-block transition-transform duration-200 group-hover/btn:translate-x-1">
+                    →
+                  </span>
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-out pointer-events-none"
+                />
               </button>
             </div>
           </form>
@@ -581,7 +590,7 @@ export function ContactSection() {
         <div className="mt-10 max-sm:mt-8 max-w-3xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {/* Location Card */}
-            <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all hover:border-[#c7a45b]/50">
+            <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#c7a45b]/60 hover:shadow-md cursor-default">
               <div className="w-11 h-11 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#8e7139]">
                 <MapPin className="w-5 h-5" />
               </div>
@@ -596,7 +605,7 @@ export function ContactSection() {
             </div>
 
             {/* Direct Phone Card (Number: 9944458459, Clickable tel:9944458459) */}
-            <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all hover:border-[#c7a45b]/50">
+            <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#c7a45b]/60 hover:shadow-md cursor-default">
               <div className="w-11 h-11 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#8e7139]">
                 <Phone className="w-5 h-5" />
               </div>
@@ -614,7 +623,7 @@ export function ContactSection() {
             </div>
 
             {/* WhatsApp Card (Number: 9944458459, Clickable https://wa.me/919944458459) */}
-            <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all hover:border-[#c7a45b]/50">
+            <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#c7a45b]/60 hover:shadow-md cursor-default">
               <div className="w-11 h-11 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#128c7e]">
                 {/* Authentic WhatsApp Brand SVG Icon */}
                 <svg
