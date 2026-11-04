@@ -9,16 +9,20 @@ export function Footer() {
 
   return (
     <footer
-      className="pt-16 pb-12 text-[#c8d3c8] border-t border-[#c7a45b]/25"
+      className="relative pt-16 pb-12 text-[#c8d3c8] border-t border-[#c7a45b]/25 overflow-hidden"
       style={{
         background: "linear-gradient(135deg, #09271a 0%, #123c2a 50%, #0c2b1d 100%)",
       }}
     >
-      <div className="max-w-container mx-auto px-4 sm:px-[5%]">
-        {/* Multi-Column Responsive Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 pb-12">
+      <div
+        aria-hidden="true"
+        className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#c7a45b]/60 to-transparent pointer-events-none"
+      />
+      <div className="max-w-container mx-auto px-4 sm:px-[5%] relative z-10">
+        {/* Multi-Column Responsive Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12 pb-12">
           {/* Column 1: Brand & Heritage */}
-          <div className="space-y-4">
+          <div className="md:col-span-12 lg:col-span-4 space-y-4 max-w-xl">
             <div className="flex items-center gap-3.5">
               <div className="relative w-[48px] h-[48px] max-sm:w-[42px] max-sm:h-[42px] shrink-0">
                 <Image
@@ -26,6 +30,7 @@ export function Footer() {
                   alt="Bhavatarini Catering Logo"
                   width={48}
                   height={48}
+                  unoptimized
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -42,106 +47,109 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Quick Links */}
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-bold tracking-[2px] text-[#e2cb8e] uppercase m-0">
-              Quick Links
-            </h4>
-            <ul className="space-y-2.5 text-[13px] list-none p-0 m-0">
-              <li>
-                <a
-                  href="#services"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
-                >
-                  Catering Services
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#experience"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
-                >
-                  The Experience
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#menu"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
-                >
-                  Menu Selections
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#why"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
-                >
-                  Why Bhavatarini
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
-                >
-                  Enquiry Form
-                </a>
-              </li>
-            </ul>
-          </div>
+          {/* Navigation & Offerings Unit: Side-by-side on sm+ (>=640px) & desktop, stacked below 640px */}
+          <div className="md:col-span-7 lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-8 lg:gap-10">
+            {/* Column 2: Quick Links */}
+            <div className="space-y-4">
+              <h4 className="text-[11px] font-bold tracking-[2px] text-[#e2cb8e] uppercase m-0">
+                Quick Links
+              </h4>
+              <ul className="space-y-2.5 text-[13px] list-none p-0 m-0">
+                <li>
+                  <a
+                    href="#services"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Catering Services
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#experience"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    The Experience
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#menu"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Menu Selections
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#why"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Why Bhavatarini
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#contact"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Enquiry Form
+                  </a>
+                </li>
+              </ul>
+            </div>
 
-          {/* Column 3: Offerings */}
-          <div className="space-y-4">
-            <h4 className="text-[11px] font-bold tracking-[2px] text-[#e2cb8e] uppercase m-0">
-              Offerings
-            </h4>
-            <ul className="space-y-2.5 text-[13px] list-none p-0 m-0">
-              <li>
-                <a
-                  href="#services"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
-                >
-                  Corporate Office Catering
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#services"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
-                >
-                  Startup & Team Food
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#services"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
-                >
-                  Small Private Functions
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#services"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
-                >
-                  Group Gatherings
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#menu"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
-                >
-                  Customised Tiffin
-                </a>
-              </li>
-            </ul>
+            {/* Column 3: Offerings (Immediately to the right of Quick Links on sm+, stacked with identical alignment on mobile) */}
+            <div className="space-y-4">
+              <h4 className="text-[11px] font-bold tracking-[2px] text-[#e2cb8e] uppercase m-0">
+                Offerings
+              </h4>
+              <ul className="space-y-2.5 text-[13px] list-none p-0 m-0">
+                <li>
+                  <a
+                    href="#services"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Corporate Office Catering
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#services"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Startup & Team Food
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#services"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Small Private Functions
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#services"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Group Gatherings
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#menu"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
+                  >
+                    Customised Tiffin
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Column 4: Contact & Engagement */}
-          <div className="space-y-4">
+          <div className="md:col-span-5 lg:col-span-3 space-y-4">
             <h4 className="text-[11px] font-bold tracking-[2px] text-[#e2cb8e] uppercase m-0">
               Get in Touch
             </h4>
@@ -154,7 +162,7 @@ export function Footer() {
                   <Phone className="w-3.5 h-3.5 text-[#c7a45b] shrink-0" />
                   <a
                     href={`tel:${siteConfig.contact.phone}`}
-                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
                   >
                     {siteConfig.contact.phone}
                   </a>
@@ -167,7 +175,7 @@ export function Footer() {
                     href={`https://wa.me/${siteConfig.contact.whatsapp.replace(/[^0-9]/g, "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] hover:translate-x-1.5 transition-all duration-200 inline-flex items-center gap-1"
                   >
                     WhatsApp Chat
                   </a>

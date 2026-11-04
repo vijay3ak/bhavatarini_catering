@@ -75,12 +75,13 @@ export function HeroSection() {
           <div className="actions flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto animate-fade-in-up-4">
             <a
               href="#contact"
-              className="btn-sheen h-[46px] min-h-[46px] inline-flex items-center justify-center px-6 rounded-[2px] text-[13px] font-bold tracking-[0.4px] text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
+              className="btn-sheen group/btn h-[46px] min-h-[46px] inline-flex items-center justify-center gap-1.5 px-6 rounded-[2px] text-[13px] font-bold tracking-[0.4px] text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(212,186,120,0.3)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
               style={{
                 background: "linear-gradient(135deg, #d4ba78, #b89347)",
               }}
             >
-              Request a Quote →
+              <span>Request a Quote</span>
+              <span className="inline-block transition-transform duration-200 group-hover/btn:translate-x-1">→</span>
             </a>
 
             {siteConfig.contact.whatsapp ? (
@@ -88,20 +89,27 @@ export function HeroSection() {
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-sheen h-[46px] min-h-[46px] inline-flex items-center justify-center gap-2 px-6 rounded-[2px] text-[13px] font-semibold tracking-[0.4px] text-[#e9ece4] bg-white/[0.05] border border-white/30 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
+                className="btn-sheen group/btn h-[46px] min-h-[46px] inline-flex items-center justify-center gap-2 px-6 rounded-[2px] text-[13px] font-semibold tracking-[0.4px] text-[#e9ece4] bg-white/[0.05] border border-white/30 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/50 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
               >
-                <span>☏</span>
+                <span className="transition-transform duration-200 group-hover/btn:scale-110">☏</span>
                 <span>Chat on WhatsApp</span>
               </a>
             ) : null}
           </div>
+
+          {/* Restrained Scroll Prompt Indicator */}
+          <div className="hidden lg:flex items-center gap-2.5 mt-10 text-[10px] font-bold uppercase tracking-[2px] text-white/50 select-none animate-fade-in-up-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c7a45b] animate-ping" />
+            <span>Scroll to explore</span>
+            <span className="inline-block animate-bounce text-[#c7a45b]">↓</span>
+          </div>
         </div>
 
-        {/* Hero Photo Column */}
-        <div className="group relative min-h-[340px] lg:min-h-[620px] max-sm:min-h-[260px] overflow-hidden">
+        {/* Hero Photo Column with Subtle Initial Scale & Gentle Parallax */}
+        <div className="group relative min-h-[340px] lg:min-h-[620px] max-sm:min-h-[260px] overflow-hidden bg-[#0c2b1d]">
           <div
             ref={photoRef}
-            className="absolute inset-[-5%] w-[110%] h-[110%] will-change-transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            className="absolute inset-[-5%] w-[110%] h-[110%] will-change-transform transition-all duration-700 ease-out group-hover:scale-[1.02]"
           >
             <Image
               src="/images/traditional-meals.jpg"
@@ -109,6 +117,7 @@ export function HeroSection() {
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 55vw"
+              quality={95}
               className="object-cover object-center filter saturate-90"
             />
           </div>
