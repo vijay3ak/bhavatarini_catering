@@ -27,6 +27,7 @@
     scroll-padding-top: 118px;
     background-color: var(--cream);
     color: var(--ink);
+    overflow-x: hidden;
   }
 
   body {

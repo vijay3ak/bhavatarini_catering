@@ -31,7 +31,7 @@ export function CtaBanner() {
           <div className="cta-actions relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full lg:w-auto">
             <a
               href="#contact"
-              className="btn-sheen animate-soft-pulse inline-flex items-center justify-center px-6 py-3 rounded-[2px] text-[13px] font-bold tracking-[0.4px] text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
+              className="btn-sheen animate-soft-pulse h-[46px] min-h-[46px] inline-flex items-center justify-center px-6 rounded-[2px] text-[13px] font-bold tracking-[0.4px] text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
               style={{
                 background: "linear-gradient(135deg, #d4ba78, #b89347)",
               }}
@@ -41,7 +41,7 @@ export function CtaBanner() {
 
             <a
               href="#contact"
-              className="btn-sheen inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[2px] text-[13px] font-semibold tracking-[0.4px] text-[#e9ece4] bg-white/[0.05] border border-white/30 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
+              className="btn-sheen h-[46px] min-h-[46px] inline-flex items-center justify-center gap-2 px-6 rounded-[2px] text-[13px] font-semibold tracking-[0.4px] text-[#e9ece4] bg-white/[0.05] border border-white/30 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold text-center"
             >
               <span>☏</span>
               <span>Send an Enquiry</span>

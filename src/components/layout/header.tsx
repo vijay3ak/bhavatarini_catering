@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ActiveSectionInfo } from "@/lib/hooks/use-active-section";
 import { Menu, X } from "lucide-react";
 
@@ -47,22 +48,24 @@ export function Header({ activeSection }: HeaderProps) {
           href="#home"
           className="flex items-center gap-[11px] text-[#173f2d] no-underline group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold rounded-sm shrink-0"
         >
-          <span
-            aria-hidden="true"
-            className="w-[37px] h-[37px] max-sm:w-[33px] max-sm:h-[33px] rounded-full grid place-items-center text-[19px] max-sm:text-[17px] leading-none text-[#17432f] border border-[#c6a45e] shadow-[0_5px_18px_rgba(17,47,31,0.1),inset_0_0_0_4px_rgba(255,255,255,0.55)] transition-transform group-hover:scale-105"
-            style={{
-              background: "linear-gradient(145deg, #f6f0df, #e6d8b4)",
-            }}
-          >
-            ♨
-          </span>
-          <span className="flex flex-col">
-            <span className="font-serif text-[19px] sm:text-[21px] max-sm:text-[17px] font-bold leading-none tracking-[-0.2px] text-[#173f2d]">
+          {/* Uploaded Chef Logo */}
+          <div className="relative w-[40px] h-[40px] max-sm:w-[34px] max-sm:h-[34px] shrink-0 transition-transform group-hover:scale-105">
+            <Image
+              src="/images/bhavatarini-chef-logo.png"
+              alt="Bhavatarini Catering Logo"
+              width={40}
+              height={40}
+              priority
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <span className="flex flex-col justify-center">
+            <span className="font-serif text-[20px] sm:text-[22px] max-sm:text-[18px] font-bold leading-none tracking-[-0.3px] text-[#123c2c] transition-colors group-hover:text-[#1c573e]">
               Bhavatarini
             </span>
-            <small className="font-sans text-[9px] max-sm:text-[8px] font-semibold tracking-[1.8px] max-sm:tracking-[1.2px] uppercase text-[#876d3a] mt-[3px]">
+            <span className="font-sans text-[9px] sm:text-[9.5px] max-sm:text-[8px] font-bold tracking-[2.4px] max-sm:tracking-[1.6px] uppercase text-[#997b3e] mt-[3px] leading-none">
               Catering Service
-            </small>
+            </span>
           </span>
         </Link>
 

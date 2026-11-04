@@ -10,13 +10,14 @@ export type RequirementType =
   | "Corporate office"
   | "Startup / team"
   | "Small function"
-  | "Group gathering";
+  | "Group gathering"
+  | "Others";
 
 export type FoodPreference =
   | "Full meals"
   | "Customised tiffin"
   | "Both meals and tiffin"
-  | "Snacks";
+  | "Others";
 
 export type QuantityRange =
   | "Below 50"
@@ -28,10 +29,17 @@ export type QuantityRange =
 export interface EnquiryPayload {
   name: string;
   phone: string;
+  email?: string;
   organisation?: string;
   requirement_type: RequirementType;
+  requirement_other?: string;
   food_preference: FoodPreference;
-  quantity_range: QuantityRange;
+  food_other?: string;
+  quantity?: string;
+  quantity_range?: QuantityRange | string;
+  event_date?: string;
+  location: string;
+  additional_requirements?: string;
   details?: string;
   honeypot?: string;
 }

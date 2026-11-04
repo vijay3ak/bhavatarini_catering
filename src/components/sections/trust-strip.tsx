@@ -1,23 +1,24 @@
 import React from "react";
+import { CookingPot, ShieldCheck, SlidersHorizontal, Clock } from "lucide-react";
 
 const TRUST_ITEMS = [
   {
-    symbol: "❧",
+    icon: CookingPot,
     title: "Traditional Taste",
     description: "Authentic South Indian food",
   },
   {
-    symbol: "♧",
+    icon: ShieldCheck,
     title: "Hygienic & Safe",
     description: "Care in every preparation",
   },
   {
-    symbol: "♧",
+    icon: SlidersHorizontal,
     title: "Flexible for Your Needs",
     description: "Meals, tiffin and custom orders",
   },
   {
-    symbol: "▣",
+    icon: Clock,
     title: "Reliable Service",
     description: "Planned and organised catering",
   },
@@ -30,6 +31,7 @@ export function TrustStrip() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-0">
           {TRUST_ITEMS.map((item, index) => {
             // Border logic: on desktop, 1, 2, 3 have right border. On tablet/mobile (2 cols), odd items (0, 2) have right border.
+            const Icon = item.icon;
             return (
               <div
                 key={item.title}
@@ -45,12 +47,12 @@ export function TrustStrip() {
               >
                 <span
                   aria-hidden="true"
-                  className="trust-icon w-[48px] h-[48px] max-sm:w-[40px] max-sm:h-[40px] shrink-0 grid place-items-center rounded-full text-[34px] max-sm:text-[27px] leading-none text-[#a18448] border border-[#c1a463]/40 shadow-sm transition-transform duration-300 ease-out group-hover:scale-[1.16] group-hover:-rotate-6"
+                  className="trust-icon w-[48px] h-[48px] max-sm:w-[40px] max-sm:h-[40px] shrink-0 grid place-items-center rounded-full text-[#a18448] border border-[#c1a463]/40 shadow-sm transition-transform duration-300 ease-out group-hover:scale-[1.12]"
                   style={{
                     background: "linear-gradient(145deg, #fbf6e9, #eee5d0)",
                   }}
                 >
-                  {item.symbol}
+                  <Icon className="w-5 h-5 max-sm:w-4 max-sm:h-4 text-[#a18448]" strokeWidth={1.75} />
                 </span>
 
                 <div>
