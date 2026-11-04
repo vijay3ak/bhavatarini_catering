@@ -10,7 +10,7 @@ export function useScrollReveal() {
 
     const targets = Array.from(
       document.querySelectorAll(
-        "section .section-head, .service, .menu-card, .why-item, .cta, .contact-info, .form, .trust-item"
+        "section .section-head, .service, .experience-card, .menu-card, .why-item, .cta, .contact-info, .form, .trust-item"
       )
     );
 
@@ -25,7 +25,8 @@ export function useScrollReveal() {
 
       if (
         el.classList.contains("service") ||
-        el.classList.contains("why-item")
+        el.classList.contains("why-item") ||
+        el.classList.contains("experience-card")
       ) {
         (el as HTMLElement).style.transitionDelay = `${(i % 4) * 85}ms`;
       }

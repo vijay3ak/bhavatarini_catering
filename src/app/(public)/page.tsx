@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { LoadingScreen } from "@/components/layout/loading-screen";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { BrandTopline } from "@/components/layout/brand-topline";
 import { Header } from "@/components/layout/header";
@@ -22,7 +23,10 @@ export default function HomePage() {
   useScrollReveal();
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-brand-cream text-brand-ink selection:bg-brand-gold selection:text-brand-ink">
+    <div className="relative min-h-screen flex flex-col bg-brand-cream text-brand-ink selection:bg-brand-gold selection:text-brand-ink overflow-x-hidden">
+      {/* 0. Signature Chef Logo Animated Loading Screen */}
+      <LoadingScreen />
+
       {/* 1. Scroll Progress Bar */}
       <ScrollProgress />
 
@@ -33,7 +37,7 @@ export default function HomePage() {
       <Header activeSection={activeSection} />
 
       {/* Main Content Sections */}
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full overflow-x-hidden">
         {/* 4. Hero Section */}
         <HeroSection />
 
