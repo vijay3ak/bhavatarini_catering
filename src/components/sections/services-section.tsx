@@ -1,5 +1,5 @@
 import React from "react";
-import { Building2, Users, PartyPopper, UtensilsCrossed } from "lucide-react";
+import { Building2, Users, PartyPopper, UsersRound } from "lucide-react";
 
 const SERVICES = [
   {
@@ -21,7 +21,7 @@ const SERVICES = [
     icoBg: "linear-gradient(145deg, #f7edda, #ead9c0)",
   },
   {
-    icon: UtensilsCrossed,
+    icon: UsersRound,
     title: "Group Gatherings",
     description: "Food arrangements for social and community events.",
     icoBg: "linear-gradient(145deg, #edf0e4, #dfe7d8)",

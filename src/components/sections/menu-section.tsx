@@ -10,6 +10,7 @@ const FULL_MEALS_ITEMS = [
   "Poriyal",
   "Appalam",
   "Curd",
+  "Vadai",
   "Payasam",
   "Pickle",
 ];
@@ -18,11 +19,11 @@ const TIFFIN_ITEMS = [
   "Idli",
   "Dosa",
   "Pongal",
+  "Poori",
+  "Chapathi",
+  "Biriyani",
   "Upma",
   "Vada",
-  "Bajji",
-  "Samosa",
-  "& more",
 ];
 
 export function MenuSection() {
@@ -66,8 +67,8 @@ export function MenuSection() {
               />
             </div>
 
-            <div className="menu-copy p-10 max-sm:p-6 flex-1 flex flex-col justify-center">
-              <div className="flex items-center gap-2.5 mb-3">
+            <div className="menu-copy p-10 max-sm:p-6 flex-1 flex flex-col justify-start">
+              <div className="flex items-center gap-2.5 mb-3 min-h-[32px]">
                 <UtensilsCrossed className="w-5 h-5 text-[#a18448] shrink-0" strokeWidth={1.75} />
                 <h3 className="font-serif text-[26px] max-sm:text-2xl leading-[1.2] text-[#153e2c] font-semibold m-0">
                   Full Meals
@@ -96,14 +97,14 @@ export function MenuSection() {
               />
             </div>
 
-            <div className="menu-copy p-10 max-sm:p-6 flex-1 flex flex-col justify-center">
-              <div className="flex items-center gap-2.5 mb-3">
+            <div className="menu-copy p-10 max-sm:p-6 flex-1 flex flex-col justify-start">
+              <div className="flex items-center gap-2.5 mb-3 min-h-[32px]">
                 <CookingPot className="w-5 h-5 text-[#a18448] shrink-0" strokeWidth={1.75} />
                 <h3 className="font-serif text-[26px] max-sm:text-2xl leading-[1.2] text-[#153e2c] font-semibold m-0">
                   Customised Tiffin
                 </h3>
               </div>
-              <div className="mb-3">
+              <div className="mb-4">
                 <span className="inline-block bg-[#eee5d0] border border-[#dcd0b5] text-[#8e7139] text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                   Customised Selections
                 </span>

@@ -11,12 +11,6 @@ export function ExperienceSection() {
           "radial-gradient(ellipse at 85% 10%, #28553d 0%, #163e2b 42%, #0c2b1e 100%)",
       }}
     >
-      {/* Inset Gold Framing Border */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-[18px] max-sm:inset-[9px] border border-[#d2b875]/[0.14] pointer-events-none z-0"
-      />
-
       {/* Concentric Watermark Rings in Top-Right Background from Prototype */}
       <div
         aria-hidden="true"
@@ -46,20 +40,11 @@ export function ExperienceSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.05fr_1.25fr_1fr_1fr] gap-3.5">
           {/* Card 01 - Tell us planning */}
           <article
-            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-between border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
+            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
             style={{
               background: "linear-gradient(145deg, #eee6d2, #dcd0b0)",
             }}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-xs tracking-widest font-bold text-[#17271e]/70">
-                01
-              </span>
-              <span className="text-xl text-[#96773a] transition-transform duration-300 group-hover:rotate-[14deg] group-hover:scale-[1.15]">
-                ✦
-              </span>
-            </div>
-
             <div>
               <h3 className="font-serif text-[25px] max-sm:text-[21px] leading-[1.12] font-semibold text-[#17271e] mb-3">
                 Tell us what
@@ -110,20 +95,11 @@ export function ExperienceSection() {
 
           {/* Card 03 - Choose Menu */}
           <article
-            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-between border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
+            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#17271e]"
             style={{
               background: "linear-gradient(145deg, #fffdf7, #f0eadb)",
             }}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-xs tracking-widest font-bold text-[#17271e]/70">
-                02
-              </span>
-              <span className="text-xl text-[#96773a] transition-transform duration-300 group-hover:rotate-[14deg] group-hover:scale-[1.15]">
-                ❋
-              </span>
-            </div>
-
             <div>
               <h3 className="font-serif text-[25px] max-sm:text-[21px] leading-[1.12] font-semibold text-[#17271e] mb-3">
                 Choose your
@@ -138,20 +114,11 @@ export function ExperienceSection() {
 
           {/* Card 04 - We prepare You enjoy */}
           <article
-            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-between border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#15261d]"
+            className="group relative overflow-hidden rounded-[2px] p-7 max-sm:p-5 min-h-[310px] max-sm:min-h-[245px] flex flex-col justify-end border border-white/25 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-[400ms] ease-out hover:-translate-y-[9px] hover:shadow-[0_22px_40px_rgba(0,0,0,0.2)] text-[#15261d]"
             style={{
               background: "linear-gradient(145deg, #d8bd7d, #b9954c)",
             }}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-xs tracking-widest font-bold text-[#15261d]/70">
-                03
-              </span>
-              <span className="text-xl text-[#15261d] transition-transform duration-300 group-hover:rotate-[14deg] group-hover:scale-[1.15]">
-                ♧
-              </span>
-            </div>
-
             <div>
               <h3 className="font-serif text-[25px] max-sm:text-[21px] leading-[1.12] font-semibold text-[#15261d] mb-3">
                 We prepare.
