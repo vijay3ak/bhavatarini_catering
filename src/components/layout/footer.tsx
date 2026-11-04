@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { siteConfig } from "@/lib/config/site";
 import { MapPin, Phone, MessageSquare, ArrowUpRight } from "lucide-react";
 
@@ -18,10 +19,21 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 pb-12">
           {/* Column 1: Brand & Heritage */}
           <div className="space-y-4">
-            <strong className="font-serif text-[24px] max-sm:text-[22px] text-[#e2cb8e] font-semibold block leading-[1.2]">
-              {siteConfig.name}
-            </strong>
-            <p className="text-[13px] leading-[1.8] text-[#c8d3c8]/85 m-0">
+            <div className="flex items-center gap-3.5">
+              <div className="relative w-[48px] h-[48px] max-sm:w-[42px] max-sm:h-[42px] shrink-0">
+                <Image
+                  src="/images/bhavatarini-chef-logo.png"
+                  alt="Bhavatarini Catering Logo"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <strong className="font-serif text-[22px] max-sm:text-[20px] text-[#e2cb8e] font-semibold block leading-[1.15]">
+                {siteConfig.name}
+              </strong>
+            </div>
+            <p className="text-[12px] max-sm:text-[11.5px] leading-[1.75] text-[#c8d3c8]/80 m-0">
               Traditional South Indian meals and customised tiffin catering for corporate offices, startups, small functions and gatherings in Coimbatore.
             </p>
             <div className="flex items-center gap-2 text-[12px] text-[#c7a45b]">
@@ -57,7 +69,7 @@ export function Footer() {
                   href="#menu"
                   className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
                 >
-                  Our Menu
+                  Menu Selections
                 </a>
               </li>
               <li>
@@ -65,7 +77,7 @@ export function Footer() {
                   href="#why"
                   className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
                 >
-                  Why Bhavatarini Catering
+                  Why Bhavatarini
                 </a>
               </li>
               <li>
@@ -73,78 +85,123 @@ export function Footer() {
                   href="#contact"
                   className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1"
                 >
-                  Contact & Enquiries
+                  Enquiry Form
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Confirmed Services */}
+          {/* Column 3: Offerings */}
           <div className="space-y-4">
             <h4 className="text-[11px] font-bold tracking-[2px] text-[#e2cb8e] uppercase m-0">
-              Catering Services
+              Offerings
             </h4>
-            <ul className="space-y-2.5 text-[13px] list-none p-0 m-0 text-[#c8d3c8]/85">
-              <li>Corporate Catering</li>
-              <li>Startup & Office Catering</li>
-              <li>Small Family Functions</li>
-              <li>Group Gatherings</li>
-              <li>Daily Meal Supply</li>
+            <ul className="space-y-2.5 text-[13px] list-none p-0 m-0">
+              <li>
+                <a
+                  href="#services"
+                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                >
+                  Corporate Office Catering
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#services"
+                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                >
+                  Startup & Team Food
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#services"
+                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                >
+                  Small Private Functions
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#services"
+                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                >
+                  Group Gatherings
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#menu"
+                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                >
+                  Customised Tiffin
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Column 4: Enquiries & Planning */}
+          {/* Column 4: Contact & Engagement */}
           <div className="space-y-4">
             <h4 className="text-[11px] font-bold tracking-[2px] text-[#e2cb8e] uppercase m-0">
-              Enquiries & Bookings
+              Get in Touch
             </h4>
-            <p className="text-[13px] leading-[1.8] text-[#c8d3c8]/85 m-0">
-              Share your event dates, head counts, and menu preferences to receive a tailored catering proposal.
+            <p className="text-[12px] leading-[1.7] text-[#c8d3c8]/80 m-0">
+              Planning food for an office or occasion in Coimbatore? Send your requirement details for a tailored proposal.
             </p>
-            <div className="pt-1">
+            <div className="space-y-2.5 text-[13px]">
+              {siteConfig.contact.phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-[#c7a45b] shrink-0" />
+                  <a
+                    href={`tel:${siteConfig.contact.phone}`}
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                  >
+                    {siteConfig.contact.phone}
+                  </a>
+                </div>
+              )}
+              {siteConfig.contact.whatsapp && (
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-3.5 h-3.5 text-[#c7a45b] shrink-0" />
+                  <a
+                    href={`https://wa.me/${siteConfig.contact.whatsapp.replace(/[^0-9]/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors"
+                  >
+                    WhatsApp Chat
+                  </a>
+                </div>
+              )}
+            </div>
+            <div className="pt-2">
               <a
                 href="#contact"
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-bold rounded-[2px] text-[#123c2c] bg-[#e2cb8e] hover:bg-[#d5bc7c] transition-colors"
+                className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[1.2px] text-[#e2cb8e] uppercase hover:underline"
               >
-                <span>Plan Your Catering</span>
+                <span>Request a Quote</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </a>
             </div>
-            {siteConfig.contact.phone ? (
-              <div className="pt-1 text-[12px]">
-                <a
-                  href={`tel:${siteConfig.contact.phone}`}
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1.5"
-                >
-                  <Phone className="w-3.5 h-3.5 text-[#c7a45b]" />
-                  <span>{siteConfig.contact.phone}</span>
-                </a>
-              </div>
-            ) : null}
-            {siteConfig.contact.whatsapp ? (
-              <div className="pt-0.5 text-[12px]">
-                <a
-                  href={`https://wa.me/${siteConfig.contact.whatsapp.replace(/[^0-9]/g, "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#c8d3c8]/85 hover:text-[#e2cb8e] transition-colors inline-flex items-center gap-1.5"
-                >
-                  <MessageSquare className="w-3.5 h-3.5 text-[#c7a45b]" />
-                  <span>+{siteConfig.contact.whatsapp}</span>
-                </a>
-              </div>
-            ) : null}
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] tracking-[0.3px] text-[#c8d3c8]/70 text-center sm:text-left">
-          <p className="m-0">
-            © {currentYear} {siteConfig.name}. All rights reserved.
+        {/* Footer Bottom Bar */}
+        <div className="border-t border-[#c7a45b]/20 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[12px] text-[#a4b5a4]">
+          <p className="m-0 text-center sm:text-left">
+            &copy; {currentYear} {siteConfig.name}. All rights reserved.
           </p>
-          <p className="m-0 text-[#c8d3c8]/50">
-            Traditional Taste · Quality Service · Coimbatore, Tamil Nadu
-          </p>
+          <div className="flex items-center gap-6">
+            <span className="text-[11px] text-[#a4b5a4]/80">
+              Coimbatore, Tamil Nadu · South Indian Catering
+            </span>
+            <Link
+              href="#home"
+              className="hover:text-[#e2cb8e] transition-colors font-semibold"
+            >
+              Back to Top ↑
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

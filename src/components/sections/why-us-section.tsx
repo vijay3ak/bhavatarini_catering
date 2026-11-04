@@ -1,5 +1,5 @@
 import React from "react";
-import { CookingPot, Layers, ShieldCheck, CalendarCheck } from "lucide-react";
+import { CookingPot, SlidersHorizontal, ShieldCheck, CalendarCheck } from "lucide-react";
 
 const WHY_ITEMS = [
   {
@@ -9,7 +9,7 @@ const WHY_ITEMS = [
       "South Indian meals and tiffin prepared with customary care and authentic flavours.",
   },
   {
-    icon: Layers,
+    icon: SlidersHorizontal,
     title: "Tailored Portions",
     description:
       "Arrangements organized around your specific guest count and event requirements.",

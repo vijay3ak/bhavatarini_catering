@@ -22,7 +22,7 @@ export default function HomePage() {
   useScrollReveal();
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-brand-cream text-brand-ink selection:bg-brand-gold selection:text-brand-ink">
+    <div className="relative min-h-screen flex flex-col bg-brand-cream text-brand-ink selection:bg-brand-gold selection:text-brand-ink overflow-x-hidden">
       {/* 1. Scroll Progress Bar */}
       <ScrollProgress />
 
@@ -33,7 +33,7 @@ export default function HomePage() {
       <Header activeSection={activeSection} />
 
       {/* Main Content Sections */}
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full overflow-x-hidden">
         {/* 4. Hero Section */}
         <HeroSection />
 
