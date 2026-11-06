@@ -16,7 +16,7 @@ export function InvoiceStatusBadge({ status, size = "md" }: InvoiceStatusBadgePr
     case "PAID":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border border-emerald-300/80 bg-emerald-50 text-emerald-800 shadow-xs ${
+          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-[2px] border border-emerald-300 bg-emerald-50 text-emerald-800 shadow-xs ${
             isSm ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1"
           }`}
         >
@@ -27,7 +27,7 @@ export function InvoiceStatusBadge({ status, size = "md" }: InvoiceStatusBadgePr
     case "PENDING":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border border-amber-300/80 bg-amber-50 text-amber-800 shadow-xs ${
+          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-[2px] border border-amber-300 bg-amber-50 text-amber-800 shadow-xs ${
             isSm ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1"
           }`}
         >
@@ -38,11 +38,11 @@ export function InvoiceStatusBadge({ status, size = "md" }: InvoiceStatusBadgePr
     case "GENERATED":
       return (
         <span
-          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-full border border-sky-300/80 bg-sky-50 text-sky-800 shadow-xs ${
+          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-[2px] border border-[#dcd0b5] bg-[#faf7ef] text-[#123c2c] shadow-xs ${
             isSm ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1"
           }`}
         >
-          <FileCheck className={isSm ? "w-3 h-3 text-sky-600" : "w-3.5 h-3.5 text-sky-600"} />
+          <FileCheck className={isSm ? "w-3 h-3 text-[#8e7139]" : "w-3.5 h-3.5 text-[#8e7139]"} />
           <span>Generated</span>
         </span>
       );

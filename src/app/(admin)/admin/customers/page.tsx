@@ -117,7 +117,7 @@ export default function CorporateCustomersPage() {
         <button
           type="button"
           onClick={handleOpenAddModal}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[2px] text-xs font-bold text-[#f4ecda] bg-gradient-to-r from-[#174a34] to-[#0d3021] border border-[#c7a45b]/40 shadow-xs hover:brightness-110 transition-all cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-[2px] text-xs font-bold text-[#faf8f1] bg-[#123c2c] hover:bg-[#1a533d] border border-[#123c2c] shadow-xs transition-colors cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4 text-[#c7a45b]" />
           <span>Add Corporate Customer</span>

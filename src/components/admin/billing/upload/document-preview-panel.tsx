@@ -40,7 +40,7 @@ export function DocumentPreviewPanel({
   };
 
   return (
-    <div className="rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] border-t-[3px] border-t-[#c7a45b] shadow-xs flex flex-col h-full min-h-[580px]">
+    <div className="rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-xs flex flex-col h-full min-h-[580px]">
       {/* Panel Header */}
       <div className="p-4 border-b border-[#f0e9dc] flex flex-wrap items-center justify-between gap-3 bg-[#faf8f2]">
         <div className="flex items-center gap-2">

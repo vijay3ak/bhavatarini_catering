@@ -136,12 +136,12 @@ export function InvoicePreview({
   return (
     <div className="space-y-4 print:space-y-0 print:m-0 print:p-0">
       {/* 1. Preview Screen Toolbar (Hidden on print) */}
-      <div className="print:hidden rounded-xl border border-border bg-card p-4 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="print:hidden rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-4 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onBackToEdit}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#faf7ef] hover:bg-[#eee7d7] px-3 py-1.5 text-xs font-bold text-[#123c2c] transition-colors cursor-pointer shadow-xs"
             title="Return to previous view"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -152,7 +152,7 @@ export function InvoicePreview({
               <h3 className="font-serif text-base font-bold text-foreground">
                 Invoice Preview &amp; Print Layout
               </h3>
-              <span className="rounded bg-emerald-950/60 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-800/40">
+              <span className="rounded-[2px] bg-[#faf7ef] px-2.5 py-0.5 text-xs font-bold text-[#123c2c] border border-[#dcd0b5]">
                 {isMultiPage ? "2-Page Balanced Monthly Format" : "1-Page Standard Format"}
               </span>
               {statusBadge}
@@ -169,11 +169,11 @@ export function InvoicePreview({
         {/* Layout Mode Toggle + Print / Save Actions */}
         <div className="flex flex-wrap items-center gap-2">
           {/* 1-Page vs 2-Page Layout Toggle */}
-          <div className="inline-flex items-center rounded-lg border border-border bg-background p-0.5 text-[11px]">
+          <div className="inline-flex items-center rounded-[2px] border border-[#dcd0b5] bg-[#f4eee1] p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setLayoutMode("2-PAGE")}
-              className={`px-2.5 py-1.5 rounded-md font-medium transition-colors ${
+              className={`px-3 py-1 rounded-[2px] font-semibold transition-colors ${
                 isMultiPage
                   ? "bg-[#123c2c] text-white shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
@@ -185,7 +185,7 @@ export function InvoicePreview({
             <button
               type="button"
               onClick={() => setLayoutMode("1-PAGE")}
-              className={`px-2.5 py-1.5 rounded-md font-medium transition-colors ${
+              className={`px-3 py-1 rounded-[2px] font-semibold transition-colors ${
                 !isMultiPage
                   ? "bg-[#123c2c] text-white shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
@@ -199,7 +199,7 @@ export function InvoicePreview({
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3.5 py-1.5 text-xs font-bold text-[#123c2c] transition-colors cursor-pointer shadow-xs"
             title="Save invoice as PDF via browser print destination"
           >
             <FileDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -208,7 +208,7 @@ export function InvoicePreview({
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-600 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-[2px] bg-[#123c2c] hover:bg-[#1a4a38] px-4 py-2 text-xs font-bold text-[#faf8f1] shadow-xs transition-colors cursor-pointer"
             title="Trigger native browser print dialog"
           >
             <Printer className="h-3.5 w-3.5" />
