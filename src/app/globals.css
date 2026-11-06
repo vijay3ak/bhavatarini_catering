@@ -270,3 +270,121 @@
     transition: none !important;
   }
 }
+
+
+/* Print Stylesheet for Formal A4 Invoice Output */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm 8mm 10mm;
+  }
+
+  /* Reset HTML and Body */
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10.5pt !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Strictly eliminate ALL overflow scroll traps and fixed height constraints in any container */
+  *,
+  *::before,
+  *::after {
+    overflow: visible !important;
+  }
+
+  div,
+  main,
+  section,
+  article {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  /* Suppress any webkit scrollbars in print preview */
+  ::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Strictly hide admin layout chrome, sidebars, headers, action buttons, drawers, and breadcrumbs */
+  aside,
+  header,
+  nav,
+  button,
+  .print\:hidden,
+  .no-print,
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+
+  /* Flatten layout wrappers */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* Make sure each invoice page sheet takes full width on print and breaks cleanly */
+  .invoice-page-sheet,
+  #invoice-print-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+    display: block !important;
+  }
+
+  .print-page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  #invoice-page-2 {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .inv-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .inv-table thead {
+    display: table-header-group !important;
+  }
+
+  .inv-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .inv-totals-row,
+  .inv-words-bar,
+  .inv-footer-section,
+  .inv-signature-box,
+  .inv-declaration-box {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
