@@ -154,7 +154,7 @@ export function LedgerUploadZone({
       )}
 
       {/* Upload Zone Card */}
-      <div className="p-6 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] border-t-[3px] border-t-[#c7a45b] shadow-xs space-y-5">
+      <div className="p-6 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-xs space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 text-[#997b3e] text-[11px] font-bold uppercase tracking-wider">

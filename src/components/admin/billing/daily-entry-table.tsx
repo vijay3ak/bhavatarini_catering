@@ -49,30 +49,30 @@ export function DailyEntryTable({
   const nonZeroCount = entries.filter((e) => e.billQty > 0).length;
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden flex flex-col">
-      {/* Table Toolbar Header */}
-      <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-muted/20">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-          <h3 className="font-serif text-base font-semibold text-foreground">
+    <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] shadow-xs overflow-hidden flex flex-col">
+      {/* 1. Table Toolbar Header */}
+      <div className="p-4 border-b border-[#e5ddcd] flex flex-col md:flex-row md:items-center md:justify-between gap-3.5 bg-[#faf7ef]">
+        <div className="flex items-center gap-2.5">
+          <Calendar className="w-4 h-4 text-[#8e7139]" />
+          <h3 className="font-serif text-base font-bold text-[#123c2c] m-0">
             Daily Ledger Reconciliation
           </h3>
-          <span className="rounded-full bg-emerald-950/60 px-2 py-0.5 text-[11px] font-medium text-emerald-400 border border-emerald-800/40">
+          <span className="rounded-[2px] bg-[#123c2c]/10 text-[#123c2c] border border-[#123c2c]/20 px-2.5 py-0.5 text-xs font-bold font-mono">
             {entries.length} Dates
           </span>
         </div>
 
         {/* Filter Tabs & Quick Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Filters */}
-          <div className="flex items-center rounded-lg border border-border bg-background p-0.5 text-xs">
+          {/* Segmented Filter Control */}
+          <div className="flex items-center rounded-[2px] border border-[#dcd0b5] bg-[#f4eee1] p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setFilterMode("ALL")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`rounded-[2px] px-3 py-1 text-xs transition-colors cursor-pointer ${
                 filterMode === "ALL"
-                  ? "bg-emerald-950 text-emerald-300 font-semibold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[#123c2c] text-[#faf8f1] font-bold shadow-xs"
+                  : "text-[#5c685e] hover:text-[#17271e] font-semibold"
               }`}
             >
               All ({entries.length})
@@ -80,10 +80,10 @@ export function DailyEntryTable({
             <button
               type="button"
               onClick={() => setFilterMode("NON-SUNDAYS")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`rounded-[2px] px-3 py-1 text-xs transition-colors cursor-pointer ${
                 filterMode === "NON-SUNDAYS"
-                  ? "bg-emerald-950 text-emerald-300 font-semibold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[#123c2c] text-[#faf8f1] font-bold shadow-xs"
+                  : "text-[#5c685e] hover:text-[#17271e] font-semibold"
               }`}
             >
               Non-Sundays ({nonSundaysCount})
@@ -91,10 +91,10 @@ export function DailyEntryTable({
             <button
               type="button"
               onClick={() => setFilterMode("SUNDAYS")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`rounded-[2px] px-3 py-1 text-xs transition-colors cursor-pointer ${
                 filterMode === "SUNDAYS"
-                  ? "bg-amber-500/20 text-amber-400 font-semibold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[#123c2c] text-[#faf8f1] font-bold shadow-xs"
+                  : "text-[#5c685e] hover:text-[#17271e] font-semibold"
               }`}
             >
               Sundays ({sundaysCount})
@@ -102,10 +102,10 @@ export function DailyEntryTable({
             <button
               type="button"
               onClick={() => setFilterMode("NON-ZERO")}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              className={`rounded-[2px] px-3 py-1 text-xs transition-colors cursor-pointer ${
                 filterMode === "NON-ZERO"
-                  ? "bg-emerald-950 text-emerald-300 font-semibold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[#123c2c] text-[#faf8f1] font-bold shadow-xs"
+                  : "text-[#5c685e] hover:text-[#17271e] font-semibold"
               }`}
             >
               Billed ({nonZeroCount})
@@ -116,85 +116,88 @@ export function DailyEntryTable({
           <button
             type="button"
             onClick={onAddCustomRow}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-1.5 text-xs font-bold text-[#123c2c] shadow-xs transition-colors cursor-pointer"
             title="Add additional or ad-hoc catering date"
           >
-            <Plus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            Add Custom Date
+            <Plus className="w-3.5 h-3.5 text-[#8e7139]" />
+            <span>Add Custom Date</span>
           </button>
 
-          {/* Action: Clear All */}
+          {/* Action: Clear All Counts */}
           <button
             type="button"
             onClick={onRequestClear}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-500/5 px-2.5 py-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-rose-200 bg-[#fff5f5] hover:bg-[#fee2e2] px-3 py-1.5 text-xs font-bold text-rose-700 shadow-xs transition-colors cursor-pointer"
             title="Reset all daily meal counts back to 0"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
-            Clear Counts
+            <RotateCcw className="w-3.5 h-3.5 text-rose-600" />
+            <span>Clear Counts</span>
           </button>
         </div>
       </div>
 
-      {/* Main Table Container */}
-      <div className="overflow-x-auto max-h-[600px] divide-y divide-border relative">
+      {/* 2. Main Table Container */}
+      <div className="overflow-x-auto max-h-[620px] relative">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-muted/70 text-muted-foreground uppercase text-[10px] tracking-wider sticky top-0 z-10 backdrop-blur-xs border-b border-border shadow-xs">
+          {/* Sticky Table Header */}
+          <thead className="bg-[#f4eee1] text-[#5c685e] uppercase text-[10.5px] font-bold tracking-wider sticky top-0 z-10 border-b border-[#dcd0b5] shadow-xs">
             <tr>
-              <th scope="col" className="w-12 px-3 py-3 text-center font-semibold">
+              <th scope="col" className="w-12 px-3 py-3 text-center font-bold">
                 Sl.
               </th>
-              <th scope="col" className="w-32 px-3 py-3 font-semibold">
+              <th scope="col" className="w-32 px-3 py-3 font-bold">
                 Date
               </th>
-              <th scope="col" className="w-24 px-3 py-3 font-semibold text-center">
+              <th scope="col" className="w-24 px-3 py-3 font-bold text-center">
                 Day
               </th>
-              <th scope="col" className="w-20 px-2 py-3 font-semibold text-center">
+              <th scope="col" className="w-20 px-2 py-3 font-bold text-center">
                 Breakfast
               </th>
-              <th scope="col" className="w-20 px-2 py-3 font-semibold text-center">
+              <th scope="col" className="w-20 px-2 py-3 font-bold text-center">
                 Lunch
               </th>
-              <th scope="col" className="w-20 px-2 py-3 font-semibold text-center">
+              <th scope="col" className="w-20 px-2 py-3 font-bold text-center">
                 Dinner
               </th>
               <th
                 scope="col"
-                className="w-18 px-2 py-3 font-semibold text-center text-muted-foreground/80 bg-muted/40"
-                title="Recorded for kitchen audit - strictly excluded from billing"
+                className="w-18 px-2 py-3 font-bold text-center text-[#8e7139] bg-[#ece4d0]/60"
+                title="Recorded for kitchen pantry audit - strictly excluded from billing"
               >
                 Snacks*
               </th>
               <th
                 scope="col"
-                className="w-18 px-2 py-3 font-semibold text-center text-muted-foreground/80 bg-muted/40"
-                title="Recorded for kitchen audit - strictly excluded from billing"
+                className="w-18 px-2 py-3 font-bold text-center text-[#8e7139] bg-[#ece4d0]/60"
+                title="Recorded for kitchen pantry audit - strictly excluded from billing"
               >
                 Tea*
               </th>
-              <th scope="col" className="w-48 px-3 py-3 font-semibold">
+              <th scope="col" className="w-48 px-3 py-3 font-bold">
                 Particulars / Preset
               </th>
-              <th scope="col" className="w-24 px-3 py-3 font-semibold text-center">
+              <th scope="col" className="w-24 px-3 py-3 font-bold text-center">
                 Bill Qty
               </th>
-              <th scope="col" className="min-w-44 px-3 py-3 font-semibold">
+              <th scope="col" className="min-w-44 px-3 py-3 font-bold">
                 Remarks
               </th>
-              <th scope="col" className="w-12 px-2 py-3 text-center font-semibold">
+              <th scope="col" className="w-12 px-2 py-3 text-center font-bold">
                 Action
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-[#f0e9dc]">
             {filteredEntries.length === 0 ? (
               <tr>
-                <td colSpan={12} className="py-12 text-center text-muted-foreground">
+                <td colSpan={12} className="py-12 text-center text-[#69746a]">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <Filter className="h-6 w-6 text-muted-foreground/40" />
-                    <p className="text-sm font-medium">No records match the current filter.</p>
-                    <p className="text-xs text-muted-foreground">
+                    <Filter className="w-6 h-6 text-[#8e7139]/50" />
+                    <p className="text-sm font-semibold text-[#17271e] m-0">
+                      No records match the current filter.
+                    </p>
+                    <p className="text-xs text-[#69746a] m-0">
                       Switch filter to &ldquo;All&rdquo; or click &ldquo;Generate Calendar&rdquo;.
                     </p>
                   </div>
@@ -207,36 +210,36 @@ export function DailyEntryTable({
                 return (
                   <tr
                     key={entry.id}
-                    className={`transition-colors hover:bg-muted/40 ${
+                    className={`transition-colors ${
                       isSunday
-                        ? "bg-amber-500/[0.04] dark:bg-amber-500/[0.02]"
-                        : "bg-background"
+                        ? "bg-[#fffdf5] hover:bg-[#fbf4de]"
+                        : "bg-[#ffffff] hover:bg-[#faf7ef]"
                     }`}
                   >
                     {/* SL. NO */}
-                    <td className="px-3 py-2 text-center font-mono text-[11px] text-muted-foreground font-semibold">
+                    <td className="px-3 py-2.5 text-center font-mono text-[11px] text-[#69746a] font-semibold">
                       {index + 1}
                     </td>
 
                     {/* DATE */}
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2.5">
                       <input
                         type="date"
                         value={entry.dateString}
                         onChange={(e) =>
                           onUpdateEntry(entry.id, "dateString", e.target.value)
                         }
-                        className="w-full rounded border border-input bg-background/80 px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring font-mono"
+                        className="w-full h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-2 py-1 text-xs text-[#17271e] font-mono outline-none"
                       />
                     </td>
 
                     {/* DAY BADGE */}
-                    <td className="px-3 py-2 text-center">
+                    <td className="px-3 py-2.5 text-center">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded-[2px] text-[11px] font-bold ${
                           isSunday
-                            ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
-                            : "bg-muted text-foreground"
+                            ? "bg-[#fbf6e9] text-[#8e7139] border border-[#ddcca6]"
+                            : "bg-[#faf7ef] text-[#5c685e] border border-[#e5ddcd]"
                         }`}
                       >
                         {entry.dayName}
@@ -244,7 +247,7 @@ export function DailyEntryTable({
                     </td>
 
                     {/* BREAKFAST */}
-                    <td className="px-2 py-2 text-center">
+                    <td className="px-2 py-2.5 text-center">
                       <input
                         type="number"
                         min="0"
@@ -258,12 +261,12 @@ export function DailyEntryTable({
                             Math.max(0, parseInt(e.target.value, 10) || 0)
                           )
                         }
-                        className="w-full text-center rounded border border-input bg-background px-1.5 py-1 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        className="w-full text-center h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-1.5 py-1 text-xs font-bold text-[#17271e] outline-none"
                       />
                     </td>
 
                     {/* LUNCH */}
-                    <td className="px-2 py-2 text-center">
+                    <td className="px-2 py-2.5 text-center">
                       <input
                         type="number"
                         min="0"
@@ -277,12 +280,12 @@ export function DailyEntryTable({
                             Math.max(0, parseInt(e.target.value, 10) || 0)
                           )
                         }
-                        className="w-full text-center rounded border border-input bg-background px-1.5 py-1 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        className="w-full text-center h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-1.5 py-1 text-xs font-bold text-[#17271e] outline-none"
                       />
                     </td>
 
                     {/* DINNER */}
-                    <td className="px-2 py-2 text-center">
+                    <td className="px-2 py-2.5 text-center">
                       <input
                         type="number"
                         min="0"
@@ -296,12 +299,12 @@ export function DailyEntryTable({
                             Math.max(0, parseInt(e.target.value, 10) || 0)
                           )
                         }
-                        className="w-full text-center rounded border border-input bg-background px-1.5 py-1 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        className="w-full text-center h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-1.5 py-1 text-xs font-bold text-[#17271e] outline-none"
                       />
                     </td>
 
                     {/* SNACKS (Audit Only) */}
-                    <td className="px-2 py-2 text-center bg-muted/20">
+                    <td className="px-2 py-2.5 text-center bg-[#faf7ef]/50">
                       <input
                         type="number"
                         min="0"
@@ -316,12 +319,12 @@ export function DailyEntryTable({
                             Math.max(0, parseInt(e.target.value, 10) || 0)
                           )
                         }
-                        className="w-full text-center rounded border border-border/80 bg-background/50 px-1 py-1 text-xs text-muted-foreground focus:text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        className="w-full text-center h-8 rounded-[2px] border border-[#e5ddcd] bg-[#f7f4eb] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-1 py-1 text-xs font-medium text-[#69746a] focus:text-[#17271e] outline-none"
                       />
                     </td>
 
                     {/* TEA (Audit Only) */}
-                    <td className="px-2 py-2 text-center bg-muted/20">
+                    <td className="px-2 py-2.5 text-center bg-[#faf7ef]/50">
                       <input
                         type="number"
                         min="0"
@@ -336,18 +339,18 @@ export function DailyEntryTable({
                             Math.max(0, parseInt(e.target.value, 10) || 0)
                           )
                         }
-                        className="w-full text-center rounded border border-border/80 bg-background/50 px-1 py-1 text-xs text-muted-foreground focus:text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        className="w-full text-center h-8 rounded-[2px] border border-[#e5ddcd] bg-[#f7f4eb] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-1 py-1 text-xs font-medium text-[#69746a] focus:text-[#17271e] outline-none"
                       />
                     </td>
 
                     {/* PARTICULARS */}
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2.5">
                       <select
                         value={entry.particulars}
                         onChange={(e) =>
                           onUpdateEntry(entry.id, "particulars", e.target.value)
                         }
-                        className="w-full rounded border border-input bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
+                        className="w-full h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-2 py-1 text-xs font-medium text-[#17271e] outline-none cursor-pointer"
                       >
                         {PARTICULAR_OPTIONS.map((opt) => (
                           <option key={opt} value={opt}>
@@ -357,13 +360,13 @@ export function DailyEntryTable({
                       </select>
                     </td>
 
-                    {/* BILL QTY (Auto-computed read-only badge) */}
-                    <td className="px-3 py-2 text-center">
+                    {/* BILL QTY (Auto-computed prominent badge) */}
+                    <td className="px-3 py-2.5 text-center">
                       <span
-                        className={`inline-flex items-center justify-center min-w-10 px-2 py-0.5 rounded text-xs font-bold font-mono ${
+                        className={`inline-flex items-center justify-center min-w-[38px] h-7 px-2 rounded-[2px] text-xs font-bold font-mono ${
                           entry.billQty > 0
-                            ? "bg-emerald-950 text-emerald-300 border border-emerald-700/60"
-                            : "bg-muted/70 text-muted-foreground"
+                            ? "bg-[#123c2c] text-[#faf8f1] shadow-xs"
+                            : "bg-[#faf7ef] text-[#8e7139] border border-[#e5ddcd]"
                         }`}
                       >
                         {entry.billQty}
@@ -371,7 +374,7 @@ export function DailyEntryTable({
                     </td>
 
                     {/* REMARKS */}
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2.5">
                       <input
                         type="text"
                         value={entry.remarks}
@@ -379,19 +382,19 @@ export function DailyEntryTable({
                         onChange={(e) =>
                           onUpdateEntry(entry.id, "remarks", e.target.value)
                         }
-                        className="w-full rounded border border-input bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        className="w-full h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-2.5 py-1 text-xs text-[#17271e] outline-none"
                       />
                     </td>
 
                     {/* ACTION (Delete custom row) */}
-                    <td className="px-2 py-2 text-center">
+                    <td className="px-2 py-2.5 text-center">
                       <button
                         type="button"
                         onClick={() => onDeleteRow(entry.id)}
-                        className="p-1 text-muted-foreground hover:text-rose-500 rounded transition-colors cursor-pointer"
+                        className="p-1.5 text-[#8e7139] hover:text-rose-600 hover:bg-rose-50 rounded-[2px] transition-colors cursor-pointer"
                         title="Remove date entry"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>
@@ -402,15 +405,15 @@ export function DailyEntryTable({
         </table>
       </div>
 
-      {/* Table Footer Audit Note */}
-      <div className="p-3 bg-muted/30 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-          <span>
-            * Snacks & Tea counts are recorded for internal pantry audit only and are strictly excluded from bill quantities.
+      {/* 3. Table Footer Audit Note (Section 9) */}
+      <div className="p-3.5 bg-[#faf7ef] border-t border-[#e5ddcd] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#69746a]">
+        <div className="flex items-center gap-2">
+          <Info className="w-4 h-4 text-[#8e7139] shrink-0" />
+          <span className="text-[#5c685e] font-medium">
+            <strong>Note:</strong> Snacks and tea quantities are recorded for internal reference and are excluded from the billable quantity.
           </span>
         </div>
-        <div className="font-mono text-[11px]">
+        <div className="font-mono text-[11px] text-[#8e7139] font-semibold shrink-0">
           Showing {filteredEntries.length} of {entries.length} rows
         </div>
       </div>

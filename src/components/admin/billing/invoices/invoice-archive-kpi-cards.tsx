@@ -48,80 +48,80 @@ export function InvoiceArchiveKpiCards({ invoices }: InvoiceArchiveKpiCardsProps
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
       {/* 1. Total Invoices */}
-      <div className="rounded-xl border border-[#e2d9c8] bg-white p-4 shadow-xs flex items-start justify-between">
+      <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-4 shadow-xs flex items-start justify-between min-h-[104px]">
         <div>
-          <p className="text-[11px] font-semibold text-[#69746a] uppercase tracking-wider">
+          <p className="text-[11px] font-bold text-[#69746a] uppercase tracking-wider m-0">
             Total Invoices
           </p>
-          <p className="text-2xl font-bold font-serif text-[#123c2c] mt-1">
+          <p className="text-2xl md:text-3xl font-serif font-bold text-[#123c2c] mt-1.5 m-0">
             {metrics.totalInvoices}
           </p>
-          <p className="text-[11px] text-[#69746a] mt-0.5">
+          <p className="text-xs text-[#69746a] mt-1 m-0">
             Across {metrics.customerCount} corporate clients
           </p>
         </div>
-        <div className="rounded-lg bg-[#123c2c]/10 text-[#123c2c] p-2.5 border border-[#123c2c]/20">
-          <FileText className="h-4 w-4" />
+        <div className="w-8 h-8 rounded-[2px] bg-[#faf7ef] border border-[#dcd0b5] grid place-items-center text-[#8e7139] shrink-0">
+          <FileText className="w-4 h-4" />
         </div>
       </div>
 
       {/* 2. Total Invoiced Value */}
-      <div className="rounded-xl border border-[#e2d9c8] bg-white p-4 shadow-xs flex items-start justify-between">
+      <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-4 shadow-xs flex items-start justify-between min-h-[104px]">
         <div>
-          <p className="text-[11px] font-semibold text-[#69746a] uppercase tracking-wider">
+          <p className="text-[11px] font-bold text-[#69746a] uppercase tracking-wider m-0">
             Total Invoiced Value
           </p>
-          <p className="text-2xl font-bold font-serif text-[#123c2c] mt-1">
+          <p className="text-2xl md:text-3xl font-serif font-bold text-[#123c2c] mt-1.5 m-0 font-mono">
             {formatINR(metrics.totalInvoicedValue)}
           </p>
-          <p className="text-[11px] text-[#69746a] mt-0.5">
+          <p className="text-xs text-[#69746a] mt-1 m-0">
             Cumulative billing total
           </p>
         </div>
-        <div className="rounded-lg bg-[#c7a45b]/15 text-[#997b3e] p-2.5 border border-[#c7a45b]/30">
-          <IndianRupee className="h-4 w-4" />
+        <div className="w-8 h-8 rounded-[2px] bg-[#faf7ef] border border-[#dcd0b5] grid place-items-center text-[#8e7139] shrink-0">
+          <IndianRupee className="w-4 h-4" />
         </div>
       </div>
 
       {/* 3. Paid Invoices */}
-      <div className="rounded-xl border border-emerald-200 bg-white p-4 shadow-xs flex items-start justify-between">
+      <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-4 shadow-xs flex items-start justify-between min-h-[104px]">
         <div>
-          <p className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">
+          <p className="text-[11px] font-bold text-[#69746a] uppercase tracking-wider m-0">
             Paid Invoices
           </p>
-          <p className="text-2xl font-bold font-serif text-emerald-950 mt-1">
+          <p className="text-2xl md:text-3xl font-serif font-bold text-emerald-800 mt-1.5 m-0">
             {metrics.paidCount}{" "}
-            <span className="text-xs font-normal text-emerald-700 font-sans">
+            <span className="text-xs font-sans font-semibold text-emerald-700">
               ({formatINR(metrics.paidValue)})
             </span>
           </p>
-          <p className="text-[11px] text-emerald-700 mt-0.5">
-            Settled via corporate transfer
+          <p className="text-xs text-emerald-700 mt-1 m-0 font-medium">
+            Settled via bank transfer
           </p>
         </div>
-        <div className="rounded-lg bg-emerald-50 text-emerald-700 p-2.5 border border-emerald-200">
-          <CheckCircle2 className="h-4 w-4" />
+        <div className="w-8 h-8 rounded-[2px] bg-emerald-50 border border-emerald-200 grid place-items-center text-emerald-700 shrink-0">
+          <CheckCircle2 className="w-4 h-4" />
         </div>
       </div>
 
       {/* 4. Pending Invoices */}
-      <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-xs flex items-start justify-between">
+      <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-4 shadow-xs flex items-start justify-between min-h-[104px]">
         <div>
-          <p className="text-[11px] font-semibold text-amber-800 uppercase tracking-wider">
+          <p className="text-[11px] font-bold text-[#69746a] uppercase tracking-wider m-0">
             Pending Invoices
           </p>
-          <p className="text-2xl font-bold font-serif text-amber-950 mt-1">
+          <p className="text-2xl md:text-3xl font-serif font-bold text-[#8e7139] mt-1.5 m-0">
             {metrics.pendingCount}{" "}
-            <span className="text-xs font-normal text-amber-700 font-sans">
+            <span className="text-xs font-sans font-semibold text-[#8e7139]">
               ({formatINR(metrics.pendingValue)})
             </span>
           </p>
-          <p className="text-[11px] text-amber-700 mt-0.5">
+          <p className="text-xs text-[#8e7139] mt-1 m-0 font-medium">
             Awaiting corporate credit cycle
           </p>
         </div>
-        <div className="rounded-lg bg-amber-50 text-amber-700 p-2.5 border border-amber-200">
-          <Clock className="h-4 w-4" />
+        <div className="w-8 h-8 rounded-[2px] bg-[#fbf6e9] border border-[#ddcca6] grid place-items-center text-[#8e7139] shrink-0">
+          <Clock className="w-4 h-4" />
         </div>
       </div>
     </div>

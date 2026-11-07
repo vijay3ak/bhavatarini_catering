@@ -558,7 +558,7 @@ export default function LedgerUploadPage() {
       </div>
 
       {/* Main Header with Context Badges */}
-      <div className="p-6 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] border-t-[3px] border-t-[#c7a45b] shadow-xs">
+      <div className="p-6 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-[#997b3e] text-xs font-bold uppercase tracking-wider mb-1">
@@ -569,7 +569,7 @@ export default function LedgerUploadPage() {
               Handwritten Ledger Upload &amp; Document Preview
             </h1>
             <p className="text-[#69746a] text-sm leading-relaxed mt-1 max-w-2xl">
-              Upload company handwritten canteen logbooks, preview original slips with zoom controls, and run automated quantity extraction before human-in-the-loop review.
+              Upload daily catering ledger sheets, review document images and prepare quantities for reconciliation.
             </p>
           </div>
 
@@ -587,7 +587,7 @@ export default function LedgerUploadPage() {
 
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[2px] bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Mock Engine Connected</span>
+              <span>Simulated Extraction Engine</span>
             </div>
           </div>
         </div>

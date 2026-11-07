@@ -68,7 +68,7 @@ export function AdminMobileDrawer({ isOpen, onClose }: AdminMobileDrawerProps) {
       {/* Drawer Panel */}
       <div
         ref={drawerRef}
-        className="relative z-10 w-72 max-w-[85vw] h-full shadow-2xl flex flex-col bg-[#0d281e]"
+        className="relative z-10 w-72 max-w-[85vw] h-full shadow-2xl flex flex-col bg-[#123c2c]"
       >
         {/* Mobile Close Button */}
         <div className="absolute top-4 right-4 z-20">
@@ -77,7 +77,7 @@ export function AdminMobileDrawer({ isOpen, onClose }: AdminMobileDrawerProps) {
             type="button"
             onClick={onClose}
             aria-label="Close navigation"
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#f4ecd8] grid place-items-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#faf8f1] grid place-items-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c7a45b]"
           >
             <X className="w-4 h-4" />
           </button>

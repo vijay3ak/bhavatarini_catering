@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   RotateCcw,
   Sparkles,
-  ExternalLink,
 } from "lucide-react";
 import { MOCK_ARCHIVED_INVOICES, MOCK_CORPORATE_CUSTOMERS } from "@/lib/data/mock-admin-data";
 import type { ArchivedInvoice } from "@/types/billing";
@@ -148,35 +147,35 @@ export default function InvoiceHistoryArchivePage() {
   return (
     <div className="space-y-6">
       {/* 1. Page Header & Back Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 border-b border-[#e5ddcd]">
         <div>
-          <div className="flex items-center gap-2 text-[#997b3e] text-xs font-bold uppercase tracking-wider mb-1">
-            <FileText className="w-4 h-4 text-[#c7a45b]" />
+          <div className="flex items-center gap-2 text-[#8e7139] text-[10.5px] font-bold uppercase tracking-[2px] mb-1">
+            <FileText className="w-3.5 h-3.5 text-[#8e7139]" />
             <span>Billing &amp; Finance Repository</span>
           </div>
           <h1 className="font-serif text-2xl md:text-3xl font-bold text-[#123c2c] m-0">
-            Invoice History &amp; Records Archive
+            Invoice History
           </h1>
-          <p className="text-[#69746a] text-xs md:text-sm mt-1 max-w-2xl leading-relaxed">
-            Historical repository of monthly corporate invoices, billing breakdowns, audit tallies, and payment statuses.
+          <p className="text-xs md:text-sm text-[#5c685e] mt-1 max-w-2xl leading-relaxed m-0">
+            View, search and manage previously generated customer invoices and billing records.
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <Link
             href="/admin/billing"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4] border border-[#d8cfbe] rounded-lg transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#123c2c] bg-[#ffffff] hover:bg-[#faf7ef] border border-[#dcd0b5] rounded-[2px] transition-colors shadow-xs"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-3.5 h-3.5 text-[#8e7139]" />
             <span>Back to Active Billing</span>
           </Link>
         </div>
       </div>
 
-      {/* 2. Prominent but Tasteful Demonstration Disclaimer */}
-      <div className="rounded-xl border border-[#c7a45b]/30 bg-gradient-to-r from-[#fffefa] to-[#faf6ed] p-4 shadow-xs">
+      {/* 2. Tasteful Demonstration Data Notice */}
+      <div className="rounded-[2px] border border-[#e5ddcd] bg-[#faf7ef] p-4 shadow-xs">
         <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-[#c7a45b]/15 text-[#997b3e] p-2 shrink-0 border border-[#c7a45b]/25 mt-0.5">
+          <div className="w-8 h-8 rounded-[2px] bg-[#fffefa] border border-[#dcd0b5] text-[#8e7139] grid place-items-center shrink-0 mt-0.5">
             <Info className="w-4 h-4" />
           </div>
           <div className="flex-1 text-xs">
@@ -184,18 +183,18 @@ export default function InvoiceHistoryArchivePage() {
               <span className="font-bold text-[#123c2c] uppercase tracking-wide text-[11px]">
                 Demonstration Archive Data
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#c7a45b]/20 text-[#8e7139]">
+              <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-[#fbf6e9] text-[#8e7139] border border-[#ddcca6]">
                 Simulated Records
               </span>
             </div>
-            <p className="text-[#5a685e] mt-1 leading-relaxed">
-              All displayed historical invoice records, bill numbers (<code>BCS/2026-27/*</code>), payment references (<code>DEMO-*</code>), and settlement statuses are deterministic simulation fixtures created for Phase 3D testing. No real customer financial or tax transactions are represented.
+            <p className="text-[#5c685e] mt-1 leading-relaxed m-0">
+              These are sample invoice records created for demonstration. No actual customer payments or financial transactions are represented.
             </p>
           </div>
         </div>
       </div>
 
-      {/* 3. Four Archive KPI Summary Cards (Reflects complete archive dataset) */}
+      {/* 3. Four Archive KPI Summary Cards */}
       <InvoiceArchiveKpiCards invoices={MOCK_ARCHIVED_INVOICES} />
 
       {/* 4. Filter & Search Controls */}

@@ -15,6 +15,7 @@ import {
   FileText,
   Printer,
   ArrowRight,
+  Info,
 } from "lucide-react";
 import { MOCK_CORPORATE_CUSTOMERS } from "@/lib/data/mock-admin-data";
 import { DailyBillingEntry, BillingRateSource } from "@/types/billing";
@@ -370,7 +371,7 @@ export default function MonthlyBillingPage() {
     const sample = generateSampleBillingData(10, 2026, 70.0);
     setDailyEntries(sample);
     triggerToast(
-      "Loaded original prototype sample billing record (Nov 2026 @ ₹70.00/meal)."
+      "Loaded reference sample billing scenario (Nov 2026 @ ₹70.00/meal)."
     );
   };
 
@@ -412,8 +413,8 @@ export default function MonthlyBillingPage() {
     <div className="space-y-6 pb-12 print:space-y-0 print:pb-0 print:m-0 print:p-0">
       {/* Toast Feedback Notification Banner */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg bg-emerald-950 text-emerald-200 border border-emerald-700/60 px-4 py-2.5 shadow-lg text-xs font-medium animate-in fade-in slide-in-from-top-2 print:hidden">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-[2px] bg-[#123c2c] text-[#faf8f1] border border-[#c7a45b] px-4 py-2.5 shadow-xl text-xs font-semibold animate-in fade-in slide-in-from-top-2 print:hidden">
+          <CheckCircle2 className="h-4 w-4 text-[#c7a45b] shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -422,25 +423,25 @@ export default function MonthlyBillingPage() {
       {stagedImportMeta && (
         <div
           id="staged-reconciliation-banner"
-          className="print:hidden p-4 rounded-[2px] bg-emerald-50 border-2 border-emerald-500 text-emerald-950 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs"
+          className="print:hidden p-4 rounded-[2px] bg-[#f5f8f5] border-2 border-[#123c2c] text-[#123c2c] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-amber-300" />
+            <div className="w-9 h-9 rounded-[2px] bg-[#123c2c] text-[#faf8f1] flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-[#c7a45b]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-emerald-200 text-emerald-900 border border-emerald-300">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#123c2c]/10 text-[#123c2c] border border-[#123c2c]/20">
                   In-Session Only • Unsaved Draft
                 </span>
-                <span className="text-xs text-emerald-800 font-medium">
+                <span className="text-xs text-[#5c685e] font-medium">
                   {stagedImportMeta.sourceDocument}
                 </span>
               </div>
-              <h4 className="text-sm font-serif font-bold text-[#123c2c] mt-0.5">
+              <h4 className="text-sm font-serif font-bold text-[#123c2c] mt-0.5 m-0">
                 Reconciled Handwritten Ledger Applied ({stagedImportMeta.totalUpdated} dates updated, {stagedImportMeta.totalMerged} merged)
               </h4>
-              <p className="text-xs text-emerald-800 mt-0.5">
+              <p className="text-xs text-[#5c685e] mt-0.5 m-0">
                 These records are active in your current session. Click &quot;Save Draft&quot; to persist to browser storage, or &quot;Undo Import&quot; to revert to prior entries.
               </p>
             </div>
@@ -451,15 +452,15 @@ export default function MonthlyBillingPage() {
               type="button"
               id="btn-undo-staged-import"
               onClick={handleUndoStagedImport}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-stone-700 bg-white hover:bg-stone-50 border border-stone-300 rounded-[2px] transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#17271e] bg-white hover:bg-[#faf7ef] border border-[#dcd0b5] rounded-[2px] transition-colors shadow-xs"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-stone-600" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
               <span>Undo Import</span>
             </button>
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-[#fdfaf0] bg-[#123c2c] hover:bg-[#1a4a38] border border-[#0d281e] rounded-[2px] transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-[#faf8f1] bg-[#123c2c] hover:bg-[#1a4a38] rounded-[2px] transition-colors shadow-xs"
             >
               <Save className="w-3.5 h-3.5 text-[#c7a45b]" />
               <span>Save Draft Locally</span>
@@ -468,52 +469,52 @@ export default function MonthlyBillingPage() {
         </div>
       )}
 
-      {/* Top Page Header & Operational Toolbar (Hidden on print) */}
-      <div className="print:hidden flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-2 border-b border-border">
+      {/* Top Page Header & Operational Toolbar (Section 3) */}
+      <div className="print:hidden flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-3 border-b border-[#e5ddcd]">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
-            <Receipt className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-2 text-[10.5px] font-bold text-[#8e7139] uppercase tracking-[2px] mb-1">
+            <Receipt className="w-3.5 h-3.5 text-[#8e7139]" />
             <span>Monthly Billing Management</span>
           </div>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-            Catering Ledger &amp; Invoice Calculations
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-[#123c2c] tracking-tight m-0">
+            Monthly Catering Billing
           </h1>
-          <p className="text-xs text-muted-foreground mt-1 max-w-2xl leading-relaxed">
-            Record daily shift meal tallies, apply contract preset rules, reconcile Sunday overtime, and generate formal tax invoices with live synchronization.
+          <p className="text-xs md:text-sm text-[#5c685e] mt-1 max-w-2xl leading-relaxed m-0">
+            Manage daily meal quantities, review billing totals and prepare customer invoices for the selected billing period.
           </p>
         </div>
 
         {/* View Mode Segmented Switcher & Action Toolbar */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Main View Switcher: Ledger vs Invoice */}
-          <div className="flex items-center rounded-lg border border-border bg-muted/40 p-1 text-xs">
+          <div className="flex items-center rounded-[2px] border border-[#dcd0b5] bg-[#f4eee1] p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setViewMode("LEDGER")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 font-semibold transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 rounded-[2px] px-3 py-1.5 text-xs transition-colors cursor-pointer ${
                 viewMode === "LEDGER"
-                  ? "bg-emerald-950 text-emerald-300 shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[#123c2c] text-[#faf8f1] font-bold shadow-xs"
+                  : "text-[#5c685e] hover:text-[#17271e] font-semibold"
               }`}
             >
-              <Calendar className="h-3.5 w-3.5" />
+              <Calendar className="w-3.5 h-3.5" />
               <span>Daily Ledger</span>
-              <span className="text-[10px] opacity-75 font-mono">
+              <span className="text-[10px] opacity-80 font-mono">
                 ({dailyEntries.length}d)
               </span>
             </button>
             <button
               type="button"
               onClick={() => setViewMode("INVOICE")}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 font-semibold transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 rounded-[2px] px-3 py-1.5 text-xs transition-colors cursor-pointer ${
                 viewMode === "INVOICE"
-                  ? "bg-emerald-950 text-emerald-300 shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-[#123c2c] text-[#faf8f1] font-bold shadow-xs"
+                  : "text-[#5c685e] hover:text-[#17271e] font-semibold"
               }`}
             >
-              <FileText className="h-3.5 w-3.5" />
+              <FileText className="w-3.5 h-3.5" />
               <span>Invoice Preview</span>
-              <span className="text-[10px] opacity-75 font-mono">
+              <span className="text-[10px] opacity-80 font-mono">
                 ({formatINR(kpis.totalAmount)})
               </span>
             </button>
@@ -523,38 +524,38 @@ export default function MonthlyBillingPage() {
           <button
             type="button"
             onClick={handleLoadSample}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-800 dark:text-amber-300 hover:bg-amber-500/20 transition-colors cursor-pointer"
-            title="Load original HTML prototype November 2026 sample scenario (@ ₹70.00)"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#ddcca6] bg-[#fbf6e9] hover:bg-[#f4eee1] px-3 py-2 text-xs font-bold text-[#8e7139] transition-colors cursor-pointer shadow-xs"
+            title="Load reference scenario (November 2026 @ ₹70.00)"
           >
-            <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-            Load Sample Record
+            <Sparkles className="w-3.5 h-3.5 text-[#c7a45b]" />
+            <span>Load Sample Record</span>
           </button>
 
           {/* Action: Save Draft */}
           <button
             type="button"
             onClick={handleSaveDraft}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-2 text-xs font-bold text-[#123c2c] transition-colors cursor-pointer shadow-xs"
             title="Save draft locally to browser"
           >
-            <Save className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            Save Draft
+            <Save className="w-3.5 h-3.5 text-[#123c2c]" />
+            <span>Save Draft</span>
           </button>
 
           {/* Secondary Links */}
           <Link
             href="/admin/billing/invoices"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-2 text-xs font-semibold text-[#5c685e] hover:text-[#123c2c] transition-colors shadow-xs"
           >
-            <FileSpreadsheet className="h-3.5 w-3.5 text-muted-foreground" />
-            Invoices Archive
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#8e7139]" />
+            <span>Invoices Archive</span>
           </Link>
           <Link
             href="/admin/billing/upload"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-2 text-xs font-semibold text-[#5c685e] hover:text-[#123c2c] transition-colors shadow-xs"
           >
-            <ScanLine className="h-3.5 w-3.5 text-muted-foreground" />
-            Ledger Scanner
+            <ScanLine className="w-3.5 h-3.5 text-[#8e7139]" />
+            <span>Ledger Scanner</span>
           </Link>
         </div>
       </div>
@@ -564,22 +565,22 @@ export default function MonthlyBillingPage() {
         <div className="space-y-6 animate-in fade-in duration-150">
           {/* Demo Sample Active Banner */}
           {isDemoSampleActive && (
-            <div className="rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-background p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="rounded-[2px] border border-[#c7a45b]/50 bg-[#fdfaf3] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
               <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0 mt-0.5">
-                  <Sparkles className="h-4 w-4" />
+                <div className="w-8 h-8 rounded-[2px] bg-[#fbf6e9] border border-[#ddcca6] text-[#8e7139] grid place-items-center shrink-0 mt-0.5">
+                  <Sparkles className="w-4 h-4" />
                 </div>
                 <div className="space-y-0.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-xs text-foreground uppercase tracking-wider">
+                    <span className="font-bold text-xs text-[#17271e] uppercase tracking-wider">
                       Demo Sample Scenario Active
                     </span>
-                    <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                    <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-[#fbf6e9] text-[#8e7139] border border-[#ddcca6]">
                       November 2026 • ₹70.00 / Meal
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Displaying the reference billing scenario from the original HTML prototype (<code className="font-mono text-[11px] text-foreground">bhavatarini-catering-billing.html</code>): 1,704 billable meals @ ₹70.00 = <strong className="text-foreground">₹1,19,280.00</strong> pre-tax. This is demonstration test data and does not alter HYDAC’s directory contract rate (₹48.00).
+                  <p className="text-xs text-[#69746a] leading-relaxed m-0">
+                    Displaying reference billing scenario: 1,704 billable meals @ ₹70.00 = <strong className="text-[#17271e]">₹1,19,280.00</strong> pre-tax. This is demonstration test data and does not alter HYDAC’s directory contract rate (₹48.00).
                   </p>
                 </div>
               </div>
@@ -591,27 +592,24 @@ export default function MonthlyBillingPage() {
                   setIsDemoSampleActive(false);
                   triggerToast("Applied HYDAC customer default rate (₹48.00/meal).");
                 }}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shadow-xs"
+                className="shrink-0 inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-1.5 text-xs font-bold text-[#123c2c] transition-colors cursor-pointer shadow-xs"
                 title="Reset to HYDAC default rate of ₹48.00/meal"
               >
-                <RotateCcw className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
                 <span>Apply HYDAC Rate (₹48.00)</span>
               </button>
             </div>
           )}
 
-          {/* Local Workspace Notice Banner */}
-          <div className="rounded-lg border border-emerald-800/30 bg-emerald-950/20 px-4 py-3 flex items-start gap-3">
-            <Layers className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-            <div className="text-xs text-emerald-300 leading-relaxed">
-              <strong className="font-semibold text-emerald-200">
-                LOCAL RECONCILIATION WORKSPACE:
-              </strong>{" "}
-              Billing calculations and daily ledger tallies run dynamically in local React state. All totals, Sunday exclusions, shift multipliers, and Indian numbering conversions are computed automatically in real time without external database requirements.
-            </div>
+          {/* Subtle Information Banner (Section 4) */}
+          <div className="rounded-[2px] border border-[#c8decb] bg-[#f5f8f5] px-4 py-3 flex items-start gap-3 shadow-xs">
+            <Info className="w-4 h-4 text-[#123c2c] shrink-0 mt-0.5" />
+            <p className="text-xs text-[#123c2c] font-medium leading-relaxed m-0">
+              Billing calculations update automatically as daily meal quantities are entered. Review the totals before preparing the customer invoice.
+            </p>
           </div>
 
-          {/* 1. Configuration Card */}
+          {/* 1. Configuration Card (Section 5) */}
           <BillingConfigCard
             customers={MOCK_CORPORATE_CUSTOMERS}
             selectedCustomerId={selectedCustomerId}
@@ -639,14 +637,14 @@ export default function MonthlyBillingPage() {
             onApplyPresetToAll={handleApplyPresetToAll}
           />
 
-          {/* 2. KPI Summary Cards & Amount in Words */}
+          {/* 2. KPI Summary Cards & Amount in Words (Section 6) */}
           <BillingKpiCards
             kpis={kpis}
             monthName={MONTH_NAMES[month]}
             year={year}
           />
 
-          {/* 3. Editable Daily Entry Table */}
+          {/* 3. Editable Daily Entry Table (Section 7, 8, 9) */}
           <DailyEntryTable
             entries={dailyEntries}
             onUpdateEntry={handleUpdateEntry}
@@ -655,26 +653,28 @@ export default function MonthlyBillingPage() {
             onRequestClear={() => setIsClearModalOpen(true)}
           />
 
-          {/* Bottom Callout to Switch to Invoice Preview */}
-          <div className="rounded-xl border border-border bg-card p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
-            <div className="flex items-center gap-2.5">
-              <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          {/* 4. Customer Invoice Preparation Section (Section 10) */}
+          <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-[2px] bg-[#faf7ef] border border-[#dcd0b5] grid place-items-center text-[#123c2c] shrink-0">
+                <FileText className="w-5 h-5 text-[#123c2c]" />
+              </div>
               <div>
-                <p className="text-xs font-semibold text-foreground">
-                  Ready to print or export the customer billing statement?
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  View the official A4 tax invoice format with supplier headers, itemized counts, and authorization sign-off.
+                <h3 className="font-serif text-base font-bold text-[#123c2c] m-0">
+                  Customer Invoice
+                </h3>
+                <p className="text-xs text-[#5c685e] mt-0.5 m-0">
+                  Review the billing details and prepare the customer invoice for printing or export.
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setViewMode("INVOICE")}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-600 transition-colors cursor-pointer shrink-0"
+              className="inline-flex items-center justify-center gap-2 rounded-[2px] bg-[#123c2c] px-5 py-2.5 text-xs font-bold text-[#faf8f1] shadow-xs hover:bg-[#1a4a38] transition-colors cursor-pointer shrink-0"
             >
               <span>Preview &amp; Print Invoice</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#c7a45b]" />
             </button>
           </div>
         </div>

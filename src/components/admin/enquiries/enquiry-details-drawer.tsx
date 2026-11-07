@@ -14,7 +14,6 @@ import {
   Clock,
   Save,
   CheckCircle2,
-  AlertCircle,
   FileText,
 } from "lucide-react";
 
@@ -62,9 +61,9 @@ const STATUS_CONFIG: Record<
   },
   cancelled: {
     label: "Cancelled",
-    bg: "bg-gray-100",
-    text: "text-gray-700",
-    border: "border-gray-200",
+    bg: "bg-stone-100",
+    text: "text-stone-700",
+    border: "border-stone-200",
   },
 };
 
@@ -139,10 +138,10 @@ export function EnquiryDetailsDrawer({
       {/* Slide-over Drawer Panel */}
       <div
         ref={drawerRef}
-        className="relative z-10 w-full max-w-xl h-full bg-[#fffefa] shadow-2xl flex flex-col border-l border-[#e5ddcd] overflow-hidden"
+        className="relative z-10 w-full max-w-xl h-full bg-[#ffffff] shadow-2xl flex flex-col border-l border-[#e5ddcd] overflow-hidden"
       >
         {/* Drawer Header */}
-        <div className="p-6 bg-[#faf7ef] border-b border-[#e5ddcd] flex items-start justify-between gap-4">
+        <div className="p-5 sm:p-6 bg-[#faf7ef] border-b border-[#e5ddcd] flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span
@@ -150,11 +149,11 @@ export function EnquiryDetailsDrawer({
               >
                 {statusStyle.label}
               </span>
-              <span className="text-[11px] text-[#8e7139] font-medium">
+              <span className="text-[11px] text-[#8e7139] font-semibold">
                 Ref: #{enquiry.id}
               </span>
             </div>
-            <h2 id="drawer-title" className="font-serif text-[22px] font-bold text-[#123c2c] m-0">
+            <h2 id="drawer-title" className="font-serif text-[20px] sm:text-[22px] font-bold text-[#123c2c] m-0">
               {enquiry.name}
             </h2>
             {enquiry.organisation && (
@@ -169,19 +168,19 @@ export function EnquiryDetailsDrawer({
             type="button"
             onClick={onClose}
             aria-label="Close enquiry details"
-            className="w-8 h-8 rounded-full border border-[#dcd0b5] bg-white hover:bg-[#eee7d7] text-[#17271e] grid place-items-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
+            className="w-8 h-8 rounded-full border border-[#dcd0b5] bg-white hover:bg-[#eee7d7] text-[#17271e] grid place-items-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c7a45b]"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Drawer Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
           {/* Quick Actions Bar */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <a
               href={`tel:${enquiry.phone}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4] border border-[#dcd0b5] transition-colors"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[2px] text-xs font-bold text-[#123c2c] bg-[#ffffff] hover:bg-[#faf7ef] border border-[#dcd0b5] shadow-xs transition-colors"
             >
               <Phone className="w-3.5 h-3.5 text-[#8e7139]" />
               <span>Call ({enquiry.phone})</span>
@@ -191,7 +190,7 @@ export function EnquiryDetailsDrawer({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[2px] text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors shadow-xs"
             >
               <MessageSquare className="w-3.5 h-3.5" />
               <span>WhatsApp Reply</span>
@@ -200,7 +199,7 @@ export function EnquiryDetailsDrawer({
             {enquiry.email && (
               <a
                 href={`mailto:${enquiry.email}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-semibold text-[#17271e] bg-white border border-[#dcd0b5] hover:bg-[#faf7ef] transition-colors"
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[2px] text-xs font-semibold text-[#123c2c] bg-[#ffffff] border border-[#dcd0b5] hover:bg-[#faf7ef] shadow-xs transition-colors"
               >
                 <Mail className="w-3.5 h-3.5 text-[#8e7139]" />
                 <span>Email Client</span>
@@ -210,13 +209,10 @@ export function EnquiryDetailsDrawer({
 
           {/* Status Updater Section */}
           <div className="p-4 rounded-[2px] bg-[#faf8f1] border border-[#e5ddcd] space-y-2.5">
-            <label
-              htmlFor="status-updater"
-              className="block text-[11px] font-bold text-[#69746a] uppercase tracking-wider"
-            >
-              Update Lead Status (Local State)
-            </label>
-            <div className="flex flex-wrap items-center gap-2">
+            <span className="block text-[10.5px] font-bold text-[#69746a] uppercase tracking-wider">
+              Update Lead Status (Session State)
+            </span>
+            <div className="flex flex-wrap items-center gap-1.5">
               {(
                 [
                   "new",
@@ -233,7 +229,7 @@ export function EnquiryDetailsDrawer({
                   onClick={() => onStatusChange(enquiry.id, st)}
                   className={`px-2.5 py-1 text-xs font-bold rounded-[2px] transition-all border ${
                     enquiry.status === st
-                      ? "bg-[#123c2c] text-[#f4ecd8] border-[#123c2c] shadow-xs"
+                      ? "bg-[#123c2c] text-[#faf8f1] border-[#123c2c] shadow-xs"
                       : "bg-white text-[#526053] border-[#dcd0b5] hover:bg-[#f4efe4]"
                   }`}
                 >
@@ -244,8 +240,8 @@ export function EnquiryDetailsDrawer({
           </div>
 
           {/* Core Event & Catering Details */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div className="p-3.5 rounded-[2px] bg-white border border-[#e5ddcd] space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="p-3.5 rounded-[2px] bg-[#ffffff] border border-[#e5ddcd] space-y-1">
               <span className="text-[#8e7139] font-bold tracking-wider uppercase text-[10px] block">
                 Requirement Type
               </span>
@@ -255,7 +251,7 @@ export function EnquiryDetailsDrawer({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[2px] bg-white border border-[#e5ddcd] space-y-1">
+            <div className="p-3.5 rounded-[2px] bg-[#ffffff] border border-[#e5ddcd] space-y-1">
               <span className="text-[#8e7139] font-bold tracking-wider uppercase text-[10px] block">
                 Food Preference
               </span>
@@ -265,7 +261,7 @@ export function EnquiryDetailsDrawer({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[2px] bg-white border border-[#e5ddcd] space-y-1">
+            <div className="p-3.5 rounded-[2px] bg-[#ffffff] border border-[#e5ddcd] space-y-1">
               <span className="text-[#8e7139] font-bold tracking-wider uppercase text-[10px] block">
                 Expected Guest Count
               </span>
@@ -275,7 +271,7 @@ export function EnquiryDetailsDrawer({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[2px] bg-white border border-[#e5ddcd] space-y-1">
+            <div className="p-3.5 rounded-[2px] bg-[#ffffff] border border-[#e5ddcd] space-y-1">
               <span className="text-[#8e7139] font-bold tracking-wider uppercase text-[10px] block">
                 Event / Service Date
               </span>
@@ -285,7 +281,7 @@ export function EnquiryDetailsDrawer({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-[2px] bg-white border border-[#e5ddcd] space-y-1 sm:col-span-2">
+            <div className="p-3.5 rounded-[2px] bg-[#ffffff] border border-[#e5ddcd] space-y-1 sm:col-span-2">
               <span className="text-[#8e7139] font-bold tracking-wider uppercase text-[10px] block">
                 Event Location / Area
               </span>
@@ -297,7 +293,7 @@ export function EnquiryDetailsDrawer({
           </div>
 
           {/* Customer Additional Requirements */}
-          <div className="p-4 rounded-[2px] bg-white border border-[#e5ddcd] space-y-1.5">
+          <div className="p-4 rounded-[2px] bg-[#ffffff] border border-[#e5ddcd] space-y-1.5">
             <span className="text-[10px] font-bold text-[#8e7139] tracking-wider uppercase block">
               Additional Requirements / Customer Notes
             </span>
@@ -311,13 +307,13 @@ export function EnquiryDetailsDrawer({
             <div className="flex items-center justify-between">
               <label
                 htmlFor="internal-notes-input"
-                className="text-[11px] font-bold text-[#69746a] uppercase tracking-wider"
+                className="text-[10.5px] font-bold text-[#69746a] uppercase tracking-wider"
               >
                 Internal Operations Notes
               </label>
               {notesSavedToast && (
-                <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Saved to local state!
+                <span className="text-[11px] font-bold text-emerald-800 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-700" /> Saved to session state!
                 </span>
               )}
             </div>
@@ -331,20 +327,20 @@ export function EnquiryDetailsDrawer({
             />
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4] border border-[#dcd0b5] transition-colors"
+              className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-[2px] text-xs font-bold text-[#faf8f1] bg-[#123c2c] hover:bg-[#1a533d] border border-[#123c2c] shadow-xs transition-colors"
             >
-              <Save className="w-3.5 h-3.5 text-[#8e7139]" />
+              <Save className="w-3.5 h-3.5 text-[#c7a45b]" />
               <span>Save Internal Notes</span>
             </button>
           </form>
 
           {/* Metadata Footer */}
-          <div className="pt-4 border-t border-[#f0e9dc] flex items-center justify-between text-[11px] text-[#8e7139]">
+          <div className="pt-4 border-t border-[#f0e9dc] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-[#8e7139]">
             <span className="flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
               <span>Received: {new Date(enquiry.created_at).toLocaleString()}</span>
             </span>
-            <span>Channel: Web Form Enquiry</span>
+            <span className="text-[#69746a]">Channel: Website Contact Form</span>
           </div>
         </div>
       </div>
