@@ -18,6 +18,9 @@ export interface ProcessOutboxOptions {
 
 const APPROVED_TEST_RECIPIENT = "vijayaraja.ak@gmail.com";
 
+// Server instance initialization timestamp used as an immutable baseline boundary for non-production cron
+const SERVER_INIT_TIME_ISO = new Date().toISOString();
+
 export interface OutboxItemResult {
   id: string;
   templateName: string;
@@ -194,21 +197,47 @@ export async function processNotificationOutbox(
         );
       }
 
-      const isCanary =
-        (Boolean(enquiry.name?.toUpperCase().includes("CANARY")) ||
-         Boolean(enquiry.details?.toUpperCase().includes("V1_EMAIL_CANARY"))) &&
-        enquiry.email?.toLowerCase() === APPROVED_TEST_RECIPIENT;
+      // When overrideRecipient is specified, verify that the enquiry is an authorized canary enquiry
+      if (options.overrideRecipient !== undefined) {
+        const isCanary =
+          (Boolean(enquiry.name?.toUpperCase().includes("CANARY")) ||
+           Boolean(enquiry.details?.toUpperCase().includes("V1_EMAIL_CANARY"))) &&
+          enquiry.email?.toLowerCase() === APPROVED_TEST_RECIPIENT;
 
-      if (!isCanary) {
-        throw new Error(
-          `[OutboxProcessor] Targeted enquiry ${enquiry.id} is not identified as an authorized canary enquiry.`
-        );
+        if (!isCanary) {
+          throw new Error(
+            `[OutboxProcessor] Targeted enquiry ${enquiry.id} is not identified as an authorized canary enquiry when overrideRecipient is used.`
+          );
+        }
       }
     }
   } else {
-    // Normal production processor behavior
+    // Background / scheduled batch processor behavior
+    const isProduction = process.env.CONTEXT === "production";
+
+    // Explicit environment-specific eligibility boundary:
+    // 1. Production: 2-hour rolling window allows bounded retries while ignoring stale historical backlog.
+    // 2. Non-Production: Requires explicit ALLOW_NON_PRODUCTION_CRON="true" and strictly bounds eligibility
+    //    to jobs created after the current deployment/session start (or explicit NON_PROD_CRON_SINCE timestamp).
+    //    This guarantees enabling non-production cron cannot process unrelated pre-existing DEV jobs.
+    let minEligibleCreatedAtIso: string;
+
+    if (isProduction) {
+      const maxJobAgeMs = 2 * 60 * 60 * 1000; // 2 hours in production
+      minEligibleCreatedAtIso = new Date(Date.now() - maxJobAgeMs).toISOString();
+    } else {
+      const allowNonProd = process.env.ALLOW_NON_PRODUCTION_CRON === "true";
+      if (!allowNonProd) {
+        console.log("[OutboxProcessor] Scheduled polling skipped: running in non-production context without ALLOW_NON_PRODUCTION_CRON=true.");
+        return result;
+      }
+      minEligibleCreatedAtIso =
+        process.env.NON_PROD_CRON_SINCE?.trim() || SERVER_INIT_TIME_ISO;
+    }
+
     const { data, error: fetchError } = await (supabase.from("notification_outbox") as any)
       .select("*")
+      .gte("created_at", minEligibleCreatedAtIso)
       .or(`and(status.eq.pending,next_retry_at.lte.${nowIso}),and(status.eq.processing,next_retry_at.lte.${staleProcessingThresholdIso})`)
       .order("created_at", { ascending: true })
       .limit(batchSize);
@@ -327,8 +356,13 @@ export async function processNotificationOutbox(
           throw new Error(`Unsupported notification template: '${job.template_name}'.`);
       }
 
-      // 6. Dispatch Email via Provider with deterministic Message-ID
-      // Mitigates duplicate inbox delivery in the event of an abrupt process crash after SMTP handshake
+      // 6. Dispatch Email via Provider with predictable Message-ID
+      // Note on Delivery Guarantees:
+      // Standard SMTP provides at-least-once delivery semantics. A deterministic Message-ID
+      // provides RFC 5322 tracking and auditability, but does NOT guarantee duplicate suppression
+      // across distinct SMTP connections. If an abrupt crash or database timeout occurs after
+      // SMTP acceptance but before the status update below, the job may be reclaimed after
+      // lease expiry, presenting an at-least-once duplicate delivery risk.
       const deterministicMessageId = `<outbox-${job.id}@bhavatarini.dev>`;
 
       const sendResult = await emailProvider.sendEmail({
@@ -340,14 +374,21 @@ export async function processNotificationOutbox(
       });
 
       if (sendResult.success) {
-        // Success: update outbox record
-        await (supabase.from("notification_outbox") as any)
+        // Success: update outbox record to 'sent'
+        const { error: markSentError } = await (supabase.from("notification_outbox") as any)
           .update({
             status: "sent",
             sent_at: new Date().toISOString(),
             last_error: null,
           })
           .eq("id", job.id);
+
+        if (markSentError) {
+          console.error(
+            `[OutboxProcessor] AT-LEAST-ONCE RISK: Job ${job.id} was accepted by email transport, but updating status to 'sent' failed:`,
+            markSentError
+          );
+        }
 
         result.sentCount++;
         result.details.push({

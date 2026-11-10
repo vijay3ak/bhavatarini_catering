@@ -8,7 +8,7 @@ import type {
   InvoicePaymentRecord,
 } from "@/types/billing";
 import { MOCK_CORPORATE_CUSTOMERS } from "@/lib/data/mock-admin-data";
-import { MONTH_NAMES } from "@/lib/utils/billing-calculations";
+import { MONTH_NAMES, calculateRowAmount } from "@/lib/utils/billing-calculations";
 
 /**
  * Maps a Supabase relational CustomerRecord to the frontend CorporateCustomer interface.
@@ -151,7 +151,9 @@ export async function saveDraftInvoice(payload: SaveDraftPayload): Promise<{
       combined_notation: e.combinedNotation || null,
       remarks: e.remarks || null,
       bill_qty: Number(e.billQty) || 0,
-      daily_amount: (Number(e.billQty) || 0) * payload.rate,
+      daily_amount: calculateRowAmount(e, payload.rate),
+      is_multi_meal: Boolean(e.isMultiMeal),
+      meal_breakdown: e.mealBreakdown || null,
     }));
 
     const { data, error } = await supabase.rpc("save_invoice_draft", {
@@ -510,6 +512,8 @@ export async function getInvoiceDetails(invoiceId: string): Promise<ArchivedInvo
       combinedNotation: row.combined_notation || undefined,
       remarks: row.remarks || "",
       billQty: Number(row.bill_qty || 0),
+      isMultiMeal: Boolean(row.is_multi_meal),
+      mealBreakdown: row.meal_breakdown || undefined,
     }));
 
     const payments: InvoicePaymentRecord[] = (paymentsData || []).map((p: any) => ({

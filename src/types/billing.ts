@@ -1,5 +1,22 @@
 import type { CorporateCustomer } from "./admin";
 
+export type MealType = "BREAKFAST" | "LUNCH" | "DINNER" | "SNACKS" | "TEA";
+
+export interface MealItemDetail {
+  mealType: MealType;
+  quantity: number;
+  rate: number;
+  amount: number;
+  enabled: boolean;
+  notes?: string;
+}
+
+export interface MultiMealBreakdown {
+  meals: MealItemDetail[];
+  totalQty: number;
+  totalAmount: number;
+}
+
 export interface DailyBillingEntry {
   id: string;
   dayNumber: number;
@@ -16,6 +33,8 @@ export interface DailyBillingEntry {
   remarks: string;
   billQty: number;
   combinedNotation?: string;
+  isMultiMeal?: boolean;
+  mealBreakdown?: MultiMealBreakdown;
 }
 
 export interface CustomerPreset {

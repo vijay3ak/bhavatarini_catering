@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { CorporateCustomer } from "@/types/admin";
 import { DailyBillingEntry, BillingKpiSummary, BillingRateSource } from "@/types/billing";
-import { formatDateDisplay, formatINR } from "@/lib/utils/billing-calculations";
+import { formatDateDisplay, formatINR, calculateRowAmount } from "@/lib/utils/billing-calculations";
 
 interface InvoicePreviewProps {
   customer: CorporateCustomer;
@@ -108,32 +108,68 @@ export function InvoicePreview({
     }
 
     return rowEntries.map((entry, idx) => {
-      const dailyAmt = entry.billQty * rate;
+      const dailyAmt = calculateRowAmount(entry, rate);
       const globalIndex = startIndex + idx + 1;
+      const isMultiMeal = Boolean(entry.isMultiMeal && entry.mealBreakdown?.meals?.length);
+      const enabledMeals = isMultiMeal
+        ? entry.mealBreakdown!.meals.filter((m) => m.enabled && m.quantity > 0)
+        : [];
 
       return (
         <tr
           key={entry.id}
           className="hover:bg-neutral-50 print:hover:bg-transparent border-b border-neutral-300 break-inside-avoid page-break-inside-avoid"
         >
-          <td className="px-2 py-1 text-center font-mono text-[10.5px] border-r border-black text-neutral-600">
+          <td className="px-2 py-1 text-center font-mono text-[10.5px] border-r border-black text-neutral-600 align-top">
             {globalIndex}
           </td>
-          <td className="px-2 py-1 text-center font-mono text-[10.5px] border-r border-black text-black">
+          <td className="px-2 py-1 text-center font-mono text-[10.5px] border-r border-black text-black align-top">
             {formatDateDisplay(entry.dateString)}
           </td>
-          <td className="px-2 py-1 text-right font-mono font-bold border-r border-black pr-3 text-black">
+          <td className="px-2 py-1 text-right font-mono font-bold border-r border-black pr-3 text-black align-top">
             {entry.billQty}
           </td>
           <td className="px-3 py-1 border-r border-black text-black">
-            <span className="font-semibold">{entry.combinedNotation || entry.particulars}</span>
-            {entry.remarks ? (
-              <span className="text-[10px] text-neutral-600 ml-1.5 italic">
-                ({entry.remarks})
-              </span>
-            ) : null}
+            {isMultiMeal ? (
+              <div className="space-y-0.5">
+                <span className="font-bold text-[11px] block text-black">
+                  {entry.particulars || "MULTI-MEAL SPECIAL SERVICE"}
+                </span>
+                <div className="text-[10px] space-y-0.5 pl-1.5 border-l border-neutral-400 my-0.5">
+                  {enabledMeals.map((meal) => {
+                    const itemRate = Number.isFinite(meal.rate) ? meal.rate : rate;
+                    const itemAmt = meal.quantity * itemRate;
+                    const label = meal.mealType.charAt(0) + meal.mealType.slice(1).toLowerCase();
+                    return (
+                      <div key={meal.mealType} className="flex items-center justify-between gap-3 text-neutral-800">
+                        <span>
+                          {label}: <span className="font-mono font-semibold">{meal.quantity}</span> × ₹{itemRate.toFixed(2)}
+                        </span>
+                        <span className="font-mono font-semibold">
+                          ₹{itemAmt.toFixed(2)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {entry.remarks ? (
+                  <span className="text-[9.5px] text-neutral-600 italic block">
+                    ({entry.remarks})
+                  </span>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                <span className="font-semibold">{entry.combinedNotation || entry.particulars}</span>
+                {entry.remarks ? (
+                  <span className="text-[10px] text-neutral-600 ml-1.5 italic">
+                    ({entry.remarks})
+                  </span>
+                ) : null}
+              </>
+            )}
           </td>
-          <td className="px-3 py-1 text-right font-mono font-semibold text-black">
+          <td className="px-3 py-1 text-right font-mono font-semibold text-black align-top">
             {dailyAmt.toFixed(2)}
           </td>
         </tr>

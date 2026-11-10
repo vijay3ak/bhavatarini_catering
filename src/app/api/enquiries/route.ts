@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import crypto from "crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { processNotificationOutbox } from "@/lib/services/outbox-processor";
 
 // Security salt loaded from environment configuration with secure fallback
 const ENQUIRY_SALT =
@@ -247,6 +248,29 @@ export async function POST(request: NextRequest) {
             "Unable to record your enquiry right now. Please try again or reach our team directly via WhatsApp.",
         },
         { status: 500 }
+      );
+    }
+
+    // Query the newly enqueued outbox notifications for this enquiry and trigger targeted dispatch
+    try {
+      const { data: outboxRows } = await (supabase.from("notification_outbox") as any)
+        .select("id")
+        .eq("enquiry_id", data.id)
+        .eq("status", "pending");
+
+      if (outboxRows && outboxRows.length > 0) {
+        const targetOutboxIds = outboxRows.map((r: { id: string }) => r.id);
+        // Non-blocking bounded dispatch: allows instant delivery while ensuring
+        // customer enquiry submission response is never failed or delayed by SMTP issues
+        await Promise.race([
+          processNotificationOutbox({ targetOutboxIds }),
+          new Promise((resolve) => setTimeout(resolve, 3500)),
+        ]);
+      }
+    } catch (dispatchErr) {
+      console.error(
+        "[POST /api/enquiries] Immediate notification dispatch error (outbox queue will retry):",
+        dispatchErr
       );
     }
 

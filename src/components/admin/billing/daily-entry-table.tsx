@@ -9,9 +9,11 @@ import {
   AlertCircle,
   RotateCcw,
   Info,
+  Utensils,
 } from "lucide-react";
-import { DailyBillingEntry } from "@/types/billing";
+import { DailyBillingEntry, MultiMealBreakdown } from "@/types/billing";
 import { PARTICULAR_OPTIONS } from "@/lib/utils/billing-calculations";
+import { MultiMealModal } from "./multi-meal-modal";
 
 export type EntryFilterMode = "ALL" | "NON-SUNDAYS" | "SUNDAYS" | "NON-ZERO";
 
@@ -25,6 +27,9 @@ interface DailyEntryTableProps {
   onDeleteRow: (id: string) => void;
   onAddCustomRow: () => void;
   onRequestClear: () => void;
+  defaultRate?: number;
+  onSaveMultiMeal?: (id: string, breakdown: MultiMealBreakdown) => void;
+  onRevertMultiMeal?: (id: string) => void;
 }
 
 export function DailyEntryTable({
@@ -33,8 +38,12 @@ export function DailyEntryTable({
   onDeleteRow,
   onAddCustomRow,
   onRequestClear,
+  defaultRate = 48,
+  onSaveMultiMeal,
+  onRevertMultiMeal,
 }: DailyEntryTableProps) {
   const [filterMode, setFilterMode] = useState<EntryFilterMode>("ALL");
+  const [activeModalEntry, setActiveModalEntry] = useState<DailyBillingEntry | null>(null);
 
   // Filter entries based on active mode
   const filteredEntries = entries.filter((entry) => {
@@ -345,19 +354,57 @@ export function DailyEntryTable({
 
                     {/* PARTICULARS */}
                     <td className="px-3 py-2.5">
-                      <select
-                        value={entry.particulars}
-                        onChange={(e) =>
-                          onUpdateEntry(entry.id, "particulars", e.target.value)
-                        }
-                        className="w-full h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-2 py-1 text-xs font-medium text-[#17271e] outline-none cursor-pointer"
-                      >
-                        {PARTICULAR_OPTIONS.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
+                      {entry.isMultiMeal ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setActiveModalEntry(entry)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[2px] bg-[#123c2c] text-[#d4af37] text-xs font-bold hover:bg-[#1a4a37] transition-colors cursor-pointer shadow-xs"
+                            title="Edit Multi-Meal quantities & rates"
+                          >
+                            <Utensils className="w-3 h-3 text-[#d4af37]" />
+                            <span>Multi-Meal ({entry.mealBreakdown?.meals?.filter((m) => m.enabled && m.quantity > 0).length || 0})</span>
+                          </button>
+                          {onRevertMultiMeal && (
+                            <button
+                              type="button"
+                              onClick={() => onRevertMultiMeal(entry.id)}
+                              className="p-1 text-neutral-400 hover:text-neutral-700 rounded-[2px]"
+                              title="Revert to standard preset"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <select
+                            value={entry.particulars}
+                            onChange={(e) => {
+                              if (e.target.value === "MULTI-MEAL BREAKDOWN") {
+                                setActiveModalEntry(entry);
+                              } else {
+                                onUpdateEntry(entry.id, "particulars", e.target.value);
+                              }
+                            }}
+                            className="w-full h-8 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] hover:bg-white focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] px-2 py-1 text-xs font-medium text-[#17271e] outline-none cursor-pointer"
+                          >
+                            {PARTICULAR_OPTIONS.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => setActiveModalEntry(entry)}
+                            className="p-1.5 text-[#8e7139] hover:text-[#123c2c] hover:bg-[#faf7ef] rounded-[2px] border border-transparent hover:border-[#dcd0b5] transition-colors cursor-pointer shrink-0"
+                            title="Configure independent multi-meal breakdown for this date"
+                          >
+                            <Utensils className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                     </td>
 
                     {/* BILL QTY (Auto-computed prominent badge) */}
@@ -365,9 +412,12 @@ export function DailyEntryTable({
                       <span
                         className={`inline-flex items-center justify-center min-w-[38px] h-7 px-2 rounded-[2px] text-xs font-bold font-mono ${
                           entry.billQty > 0
-                            ? "bg-[#123c2c] text-[#faf8f1] shadow-xs"
+                            ? entry.isMultiMeal
+                              ? "bg-[#123c2c] text-[#d4af37] ring-1 ring-[#c7a45b] shadow-xs"
+                              : "bg-[#123c2c] text-[#faf8f1] shadow-xs"
                             : "bg-[#faf7ef] text-[#8e7139] border border-[#e5ddcd]"
                         }`}
+                        title={entry.isMultiMeal ? `Multi-meal total: ${entry.billQty} meals` : undefined}
                       >
                         {entry.billQty}
                       </span>
@@ -417,6 +467,27 @@ export function DailyEntryTable({
           Showing {filteredEntries.length} of {entries.length} rows
         </div>
       </div>
+
+      {activeModalEntry && (
+        <MultiMealModal
+          isOpen={Boolean(activeModalEntry)}
+          entry={activeModalEntry}
+          defaultRate={defaultRate}
+          onClose={() => setActiveModalEntry(null)}
+          onSave={(breakdown) => {
+            if (onSaveMultiMeal) {
+              onSaveMultiMeal(activeModalEntry.id, breakdown);
+            }
+            setActiveModalEntry(null);
+          }}
+          onRevert={() => {
+            if (onRevertMultiMeal) {
+              onRevertMultiMeal(activeModalEntry.id);
+            }
+            setActiveModalEntry(null);
+          }}
+        />
+      )}
     </div>
   );
 }

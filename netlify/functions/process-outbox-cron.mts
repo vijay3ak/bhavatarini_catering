@@ -26,9 +26,11 @@ export default async function handler(request: Request) {
   const context = process.env.CONTEXT || "development";
 
   // Guard 1: Run exclusively in the production deployment context
-  if (context !== "production") {
+  // (unless explicitly enabled for staging/branch testing via ALLOW_NON_PRODUCTION_CRON="true")
+  const allowNonProd = process.env.ALLOW_NON_PRODUCTION_CRON === "true";
+  if (context !== "production" && !allowNonProd) {
     console.log(
-      `[OutboxCron] Skipping execution: current context is '${context}'. Scheduled outbox processor executes in 'production' context only.`
+      `[OutboxCron] Skipping execution: current context is '${context}'. Scheduled outbox processor executes in 'production' context only (ALLOW_NON_PRODUCTION_CRON is not 'true').`
     );
     return new Response(
       JSON.stringify({

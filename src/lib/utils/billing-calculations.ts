@@ -32,6 +32,7 @@ export const PARTICULAR_OPTIONS = [
   "BREAKFAST ONLY",
   "DINNER ONLY",
   "SPECIAL EVENT",
+  "MULTI-MEAL BREAKDOWN",
 ] as const;
 
 /**
@@ -181,6 +182,13 @@ export function extractCombinedQuantity(notation: string | undefined | null): nu
  * NOTE: Snacks and Tea are strictly NON-BILLABLE / AUDIT ONLY and never counted in billQty.
  */
 export function calculateRowBillQty(entry: Partial<DailyBillingEntry>): number {
+  // 0. If multi-meal breakdown exists, compute bill quantity as sum of all enabled meals
+  if (entry.isMultiMeal && entry.mealBreakdown?.meals) {
+    return entry.mealBreakdown.meals
+      .filter((m) => m.enabled)
+      .reduce((sum, m) => sum + Math.max(0, parseInt(String(m.quantity), 10) || 0), 0);
+  }
+
   // 1. If explicit combined meal notation exists, extract the combined count
   // CRITICAL BUSINESS RULE:
   // "65 Breakfast, Dinner" means 65 total meals covering the shift, NOT 65 + 65 = 130.
@@ -331,6 +339,27 @@ export function applyPresetToAllNonSundays(
 }
 
 /**
+ * Calculate Single Row Amount in INR
+ * For multi-meal entries:
+ *   Sums (quantity * mealRate) across all enabled meals, supporting independent rates per category.
+ * For standard single-preset entries:
+ *   Returns billQty * defaultRate.
+ */
+export function calculateRowAmount(entry: DailyBillingEntry, defaultRate: number): number {
+  const safeRate = Number.isFinite(defaultRate) && defaultRate >= 0 ? defaultRate : 0;
+  if (entry.isMultiMeal && entry.mealBreakdown?.meals) {
+    return entry.mealBreakdown.meals
+      .filter((m) => m.enabled && m.quantity > 0)
+      .reduce((sum, m) => {
+        const itemRate = Number.isFinite(m.rate) && m.rate >= 0 ? m.rate : safeRate;
+        const qty = Math.max(0, parseInt(String(m.quantity), 10) || 0);
+        return sum + qty * itemRate;
+      }, 0);
+  }
+  return (entry.billQty || 0) * safeRate;
+}
+
+/**
  * Calculate KPI summaries across all daily entries
  */
 export function calculateBillingKpis(
@@ -341,16 +370,17 @@ export function calculateBillingKpis(
   const safeRate = Math.max(0, rate || 0);
   let totalSundays = 0;
   let totalBillQty = 0;
+  let totalAmount = 0;
 
   for (const entry of entries) {
     if (entry.isSunday) {
       totalSundays++;
     }
     totalBillQty += entry.billQty;
+    totalAmount += calculateRowAmount(entry, safeRate);
   }
 
   const totalDays = entries.length;
-  const totalAmount = totalBillQty * safeRate;
 
   return {
     totalDays,

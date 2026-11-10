@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { MOCK_CORPORATE_CUSTOMERS } from "@/lib/data/mock-admin-data";
 import type { CorporateCustomer } from "@/types/admin";
-import { DailyBillingEntry, BillingRateSource } from "@/types/billing";
+import { DailyBillingEntry, BillingRateSource, MultiMealBreakdown } from "@/types/billing";
 import {
   getActiveCustomers,
   saveDraftInvoice,
@@ -331,6 +331,61 @@ export default function MonthlyBillingPage() {
         return updated;
       })
     );
+  };
+
+  // Multi-Meal breakdown configured for a date
+  const handleSaveMultiMeal = (
+    id: string,
+    breakdown: MultiMealBreakdown
+  ) => {
+    setDailyEntries((prev) =>
+      prev.map((entry) => {
+        if (entry.id !== id) return entry;
+
+        const bfMeal = breakdown.meals.find((m) => m.mealType === "BREAKFAST" && m.enabled);
+        const lunchMeal = breakdown.meals.find((m) => m.mealType === "LUNCH" && m.enabled);
+        const dinnerMeal = breakdown.meals.find((m) => m.mealType === "DINNER" && m.enabled);
+        const snacksMeal = breakdown.meals.find((m) => m.mealType === "SNACKS" && m.enabled);
+        const teaMeal = breakdown.meals.find((m) => m.mealType === "TEA" && m.enabled);
+
+        const updated: DailyBillingEntry = {
+          ...entry,
+          isMultiMeal: true,
+          mealBreakdown: breakdown,
+          breakfast: bfMeal ? bfMeal.quantity : 0,
+          lunch: lunchMeal ? lunchMeal.quantity : 0,
+          dinner: dinnerMeal ? dinnerMeal.quantity : 0,
+          snacks: snacksMeal ? snacksMeal.quantity : 0,
+          tea: teaMeal ? teaMeal.quantity : 0,
+          particulars: "MULTI-MEAL BREAKDOWN",
+          isManualParticulars: true,
+        };
+        updated.billQty = calculateRowBillQty(updated);
+        return updated;
+      })
+    );
+    triggerToast(
+      `Configured multi-meal breakdown (${breakdown.totalQty} meals, ${formatINR(breakdown.totalAmount)}).`
+    );
+  };
+
+  // Revert multi-meal row to standard single-preset billing
+  const handleRevertMultiMeal = (id: string) => {
+    setDailyEntries((prev) =>
+      prev.map((entry) => {
+        if (entry.id !== id) return entry;
+        const updated: DailyBillingEntry = {
+          ...entry,
+          isMultiMeal: false,
+          mealBreakdown: undefined,
+          particulars: entry.isSunday ? "SUNDAY" : activePreset,
+          isManualParticulars: false,
+        };
+        updated.billQty = calculateRowBillQty(updated);
+        return updated;
+      })
+    );
+    triggerToast("Reverted date to standard shift preset.");
   };
 
   // Add custom row: preserves current rate and rateSource
@@ -760,6 +815,9 @@ export default function MonthlyBillingPage() {
             onDeleteRow={handleDeleteRow}
             onAddCustomRow={handleAddCustomRow}
             onRequestClear={() => setIsClearModalOpen(true)}
+            defaultRate={rate}
+            onSaveMultiMeal={handleSaveMultiMeal}
+            onRevertMultiMeal={handleRevertMultiMeal}
           />
 
           {/* 4. Customer Invoice Preparation Section (Section 10) */}
