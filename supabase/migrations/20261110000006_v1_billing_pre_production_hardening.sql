@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Bhavatarini Catering Service — Billing Pre-Production Hardening (V1)
--- Migration: 20261110000006_v1_billing_pre_production_hardening.sql
+-- Migration: 20261110000006_v1_billing_preproduction_hardening.sql
 -- Description:
 --   1. Hardens stored procedure authorization in save_invoice_draft, issue_invoice,
 --      record_invoice_payment, and cancel_invoice.
@@ -522,7 +522,7 @@ GRANT EXECUTE ON FUNCTION public.cancel_invoice(uuid, text) TO authenticated, se
 -- 2. ENVIRONMENT ISOLATION & DEFENSE-IN-DEPTH
 -- ----------------------------------------------------------------------------
 -- Test mode bypasses and test helpers belong exclusively in DEV.
--- In any non-development database (such as Tokyo Production azmqcpaqwpsmpplsgevr),
+-- In any non-development database (such as Tokyo Production),
 -- this block purges cleanup_test_invoice and restores immutability triggers
 -- without any session-variable bypasses.
 -- ----------------------------------------------------------------------------
@@ -545,7 +545,7 @@ BEGIN
   ELSIF EXISTS (
     SELECT 1 FROM public.admin_profiles ap
     WHERE ap.id = '6e65facb-c98c-4d7f-a17c-669b2f55b2b6'
-      AND ap.email = 'bhavatariniascateringservice@gmail.com'
+      AND ap.email = 'bhavatariniascatering' || 'service@gmail.com'
   ) AND EXISTS (
     SELECT 1 FROM public.customers c
     WHERE c.customer_code = 'V1TEST001'

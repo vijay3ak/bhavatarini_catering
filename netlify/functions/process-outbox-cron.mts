@@ -2,7 +2,7 @@
  * Bhavatarini Catering Service — Outbox Notification Processor Scheduled Function
  *
  * File: netlify/functions/process-outbox-cron.mts
- * Schedule: Every 5 minutes (cron: "*/5 * * * *")
+ * Schedule: Every 5 minutes (configured in netlify.toml)
  * Runtime: Netlify Functions v2 (Node.js 20)
  *
  * CRITICAL EMAIL & ENVIRONMENT SAFETY:
