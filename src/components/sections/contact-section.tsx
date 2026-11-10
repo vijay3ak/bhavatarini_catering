@@ -265,16 +265,6 @@ export function ContactSection() {
                     <p className="text-[13px] text-[#2c4735] leading-relaxed m-0">
                       Thank you for contacting Bhavatarini Catering Service. Your requirement has been saved and our catering coordinator will review it and get in touch with you shortly.
                     </p>
-                    {serverResult.enquiryNumber && (
-                      <div className="pt-2 flex flex-wrap items-center gap-2">
-                        <span className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
-                          Enquiry Reference:
-                        </span>
-                        <span className="inline-flex items-center px-2.5 py-1 bg-white border border-[#b6d7bd] rounded-[2px] text-xs font-mono font-bold text-brand-green shadow-xs">
-                          {serverResult.enquiryNumber}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
