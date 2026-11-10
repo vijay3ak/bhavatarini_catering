@@ -141,13 +141,13 @@ export function BillingConfigCard({
               <div className="inline-flex items-center gap-1.5 px-2.5 h-9 rounded-[2px] bg-[#faf7ef] border border-[#e5ddcd] text-xs box-border">
                 <span className="font-semibold text-[#69746a]">GSTIN:</span>
                 <span className="font-mono text-[#17271e] font-semibold">
-                  {currentCustomer?.gstin || "â€”"}
+                  {currentCustomer?.gstin || "—"}
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 h-9 rounded-[2px] bg-[#faf7ef] border border-[#e5ddcd] text-xs box-border">
                 <span className="font-semibold text-[#69746a]">PAN:</span>
                 <span className="font-mono text-[#17271e] font-semibold">
-                  {currentCustomer?.pan || "â€”"}
+                  {currentCustomer?.pan || "—"}
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 h-9 rounded-[2px] bg-[#faf7ef] border border-[#e5ddcd] text-xs box-border">
@@ -177,7 +177,7 @@ export function BillingConfigCard({
               type="text"
               value={billNo}
               onChange={(e) => onBillNoChange(e.target.value)}
-              placeholder="e.g. BCS/2026-27/084"
+              placeholder="DRAFT (auto-assigned on issue)"
               className="w-full h-9 rounded-[2px] border border-[#dcd0b5] bg-[#faf8f1] px-2.5 text-xs text-[#17271e] font-mono font-medium focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] outline-none box-border"
             />
           </div>
@@ -281,12 +281,12 @@ export function BillingConfigCard({
             />
           </div>
 
-          {/* Rate (â‚¹ / meal) */}
+          {/* Rate (₹ / meal) */}
           <div className="sm:col-span-3 space-y-1.5">
             <div className="h-6 flex items-center justify-between text-[11px] font-semibold text-[#5c685e]">
               <label htmlFor="cfg-unit-rate" className="flex items-center gap-1 cursor-pointer">
                 <IndianRupee className="w-3 h-3 text-[#8e7139]" />
-                <span>Unit Rate (â‚¹/meal)</span>
+                <span>Unit Rate (₹/meal)</span>
               </label>
               {/* Rate Source Chip */}
               {rateSource === "CUSTOMER_DEFAULT" && (
@@ -316,7 +316,7 @@ export function BillingConfigCard({
             </div>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-xs text-[#8e7139] font-bold">
-                â‚¹
+                ₹
               </span>
               <input
                 id="cfg-unit-rate"

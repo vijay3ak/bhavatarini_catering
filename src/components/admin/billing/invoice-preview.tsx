@@ -89,7 +89,7 @@ export function InvoicePreview({
           PARTICULARS
         </th>
         <th className="w-28 px-3 py-1.5 text-right font-bold text-black">
-          AMOUNT (â‚¹)
+          AMOUNT (₹)
         </th>
       </tr>
     </thead>
@@ -168,7 +168,7 @@ export function InvoicePreview({
             <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
               <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
               <span>
-                Total: {formatINR(kpis.totalAmount)} ({kpis.totalBillQty.toLocaleString("en-IN")} meals) â€¢ Rate: â‚¹{rate.toFixed(2)} / meal
+                Total: {formatINR(kpis.totalAmount)} ({kpis.totalBillQty.toLocaleString("en-IN")} meals) • Rate: ₹{rate.toFixed(2)} / meal
               </span>
             </p>
           </div>
@@ -302,11 +302,11 @@ export function InvoicePreview({
                     <div className="pt-1 flex flex-wrap gap-x-4 text-[11px]">
                       <div>
                         <span className="font-bold">GSTIN: </span>
-                        <span className="font-mono">{customer.gstin || "â€”"}</span>
+                        <span className="font-mono">{customer.gstin || "—"}</span>
                       </div>
                       <div>
                         <span className="font-bold">PAN: </span>
-                        <span className="font-mono">{customer.pan || "â€”"}</span>
+                        <span className="font-mono">{customer.pan || "—"}</span>
                       </div>
                     </div>
                   </div>
@@ -315,7 +315,7 @@ export function InvoicePreview({
                   <div className="sm:col-span-5 p-3 flex flex-col justify-between space-y-1 text-[11px]">
                     <div className="flex justify-between items-center border-b border-neutral-200 pb-0.5">
                       <span className="font-bold text-neutral-800">BILL NO:</span>
-                      <span className="font-mono font-bold text-black">{billNo}</span>
+                      <span className="font-mono font-bold text-black">{billNo || "DRAFT"}</span>
                     </div>
                     <div className="flex justify-between items-center border-b border-neutral-200 pb-0.5">
                       <span className="font-bold text-neutral-800">DATE:</span>
@@ -439,13 +439,13 @@ export function InvoicePreview({
                       <span className="font-serif font-black uppercase tracking-wider text-[#0b241a] text-xs">
                         A.S. Bhavatarini Catering Service
                       </span>
-                      <span className="text-neutral-400 mx-2">â€¢</span>
+                      <span className="text-neutral-400 mx-2">•</span>
                       <span className="font-semibold text-neutral-800">
                         INVOICE CONTINUATION
                       </span>
                     </div>
                     <div className="flex items-center gap-3 font-mono text-[10.5px]">
-                      <span>BILL NO: <strong>{billNo}</strong></span>
+                      <span>BILL NO: <strong>{billNo || "DRAFT"}</strong></span>
                       <span className="text-neutral-400">|</span>
                       <span>DATE: <strong>{formatDateDisplay(invoiceDate)}</strong></span>
                       <span className="rounded bg-neutral-200 px-1.5 py-0.2 font-bold text-black ml-1">

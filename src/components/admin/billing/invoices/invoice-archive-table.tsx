@@ -136,7 +136,7 @@ export function InvoiceArchiveTable({
                       <span className="font-semibold text-[#8e7139]">
                         {inv.customer.shortCode}
                       </span>
-                      <span>â€¢</span>
+                      <span>•</span>
                       <span className="truncate max-w-[140px]" title={inv.unitLocation}>
                         {inv.unitLocation}
                       </span>
@@ -173,7 +173,7 @@ export function InvoiceArchiveTable({
 
                 {/* 6. Rate */}
                 <td className="py-3.5 px-4 text-right whitespace-nowrap font-mono text-xs font-semibold text-[#17271e]">
-                  â‚¹{inv.rate.toFixed(2)}
+                  ₹{inv.rate.toFixed(2)}
                 </td>
 
                 {/* 7. Total Amount */}
@@ -251,7 +251,7 @@ export function InvoiceArchiveTable({
               <div>
                 <span className="text-[10px] text-[#69746a] uppercase font-semibold">Meals / Rate</span>
                 <p className="font-mono text-[#17271e] m-0">
-                  {inv.kpis.totalBillQty} @ â‚¹{inv.rate.toFixed(2)}
+                  {inv.kpis.totalBillQty} @ ₹{inv.rate.toFixed(2)}
                 </p>
               </div>
               <div>

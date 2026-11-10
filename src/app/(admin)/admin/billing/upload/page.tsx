@@ -494,7 +494,7 @@ export default function LedgerUploadPage() {
       rate: 48.0,
       rateSource: "CUSTOMER_DEFAULT",
       unitLocation: "CHETTIPALAYAM",
-      billNo: "BCS/2026-27/084",
+      billNo: "",
       startDate: "2026-11-01",
       endDate: "2026-11-30",
       invoiceDate: "2026-11-30",

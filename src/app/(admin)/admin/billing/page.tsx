@@ -63,7 +63,7 @@ export default function MonthlyBillingPage() {
 
   // 2. Configuration State
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("cust-hydac");
-  const [billNo, setBillNo] = useState<string>("BCS/2026-27/084");
+  const [billNo, setBillNo] = useState<string>("");
   const [month, setMonth] = useState<number>(10); // November (0-indexed)
   const [year, setYear] = useState<number>(2026);
   const [startDate, setStartDate] = useState<string>("2026-11-01");
@@ -241,7 +241,7 @@ export default function MonthlyBillingPage() {
       }
       setIsDemoSampleActive(false);
       triggerToast(
-        `Switched customer to ${customer.shortCode}. Loaded default contract rate (â‚¹${customer.defaultRate.toFixed(2)}/meal).`
+        `Switched customer to ${customer.shortCode}. Loaded default contract rate (₹${customer.defaultRate.toFixed(2)}/meal).`
       );
     }
   };
@@ -383,7 +383,7 @@ export default function MonthlyBillingPage() {
     triggerToast("All daily meal counts have been reset to 0.");
   };
 
-  // Load original prototype demo sample record (November 2026 @ â‚¹70)
+  // Load original prototype demo sample record (November 2026 @ ₹70)
   const handleLoadSample = () => {
     setSelectedCustomerId("cust-hydac");
     setMonth(10);
@@ -396,7 +396,7 @@ export default function MonthlyBillingPage() {
     const sample = generateSampleBillingData(10, 2026, 70.0);
     setDailyEntries(sample);
     triggerToast(
-      "Loaded reference sample billing scenario (Nov 2026 @ â‚¹70.00/meal)."
+      "Loaded reference sample billing scenario (Nov 2026 @ ₹70.00/meal)."
     );
   };
 
@@ -547,7 +547,7 @@ export default function MonthlyBillingPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#123c2c]/10 text-[#123c2c] border border-[#123c2c]/20">
-                  In-Session Only â€¢ Unsaved Draft
+                  In-Session Only • Unsaved Draft
                 </span>
                 <span className="text-xs text-[#5c685e] font-medium">
                   {stagedImportMeta.sourceDocument}
@@ -640,7 +640,7 @@ export default function MonthlyBillingPage() {
             type="button"
             onClick={handleLoadSample}
             className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#ddcca6] bg-[#fbf6e9] hover:bg-[#f4eee1] px-3 py-2 text-xs font-bold text-[#8e7139] transition-colors cursor-pointer shadow-xs"
-            title="Load reference scenario (November 2026 @ â‚¹70.00)"
+            title="Load reference scenario (November 2026 @ ₹70.00)"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#c7a45b]" />
             <span>Load Sample Record</span>
@@ -685,11 +685,11 @@ export default function MonthlyBillingPage() {
                       Demo Sample Scenario Active
                     </span>
                     <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-[#fbf6e9] text-[#8e7139] border border-[#ddcca6]">
-                      November 2026 â€¢ â‚¹70.00 / Meal
+                      November 2026 • ₹70.00 / Meal
                     </span>
                   </div>
                   <p className="text-xs text-[#69746a] leading-relaxed m-0">
-                    Displaying reference billing scenario: 1,704 billable meals @ â‚¹70.00 = <strong className="text-[#17271e]">â‚¹1,19,280.00</strong> pre-tax. This is demonstration test data and does not alter HYDACâ€™s directory contract rate (â‚¹48.00).
+                    Displaying reference billing scenario: 1,704 billable meals @ ₹70.00 = <strong className="text-[#17271e]">₹1,19,280.00</strong> pre-tax. This is demonstration test data and does not alter HYDAC&apos;s directory contract rate (₹48.00).
                   </p>
                 </div>
               </div>
@@ -699,13 +699,13 @@ export default function MonthlyBillingPage() {
                   setRate(48.0);
                   setRateSource("CUSTOMER_DEFAULT");
                   setIsDemoSampleActive(false);
-                  triggerToast("Applied HYDAC customer default rate (â‚¹48.00/meal).");
+                  triggerToast("Applied HYDAC customer default rate (₹48.00/meal).");
                 }}
                 className="shrink-0 inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-1.5 text-xs font-bold text-[#123c2c] transition-colors cursor-pointer shadow-xs"
-                title="Reset to HYDAC default rate of â‚¹48.00/meal"
+                title="Reset to HYDAC default rate of ₹48.00/meal"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
-                <span>Apply HYDAC Rate (â‚¹48.00)</span>
+                <span>Apply HYDAC Rate (₹48.00)</span>
               </button>
             </div>
           )}

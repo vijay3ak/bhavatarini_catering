@@ -70,11 +70,11 @@ export function BillingKpiCards({ kpis, monthName, year }: BillingKpiCardsProps)
           </div>
         </div>
 
-        {/* Card 4: Total Amount (â‚¹) - Highlighted in Elegant Forest Green */}
+        {/* Card 4: Total Amount (₹) - Highlighted in Elegant Forest Green */}
         <div className="rounded-[2px] border border-[#0d281e] bg-[#123c2c] p-4 shadow-sm flex items-start justify-between min-h-[104px] text-[#faf8f1]">
           <div>
             <p className="text-[11px] font-bold text-[#c7a45b] uppercase tracking-wider m-0">
-              Total Amount (â‚¹)
+              Total Amount (₹)
             </p>
             <p className="text-2xl md:text-3xl font-serif font-bold text-[#ffffff] mt-1.5 m-0">
               {formatINR(kpis.totalAmount)}

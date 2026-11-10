@@ -7,7 +7,6 @@ import {
   Building2,
   Receipt,
   ArrowRight,
-  Info,
   Clock,
   TrendingUp,
   FileText,
@@ -283,21 +282,6 @@ export default function AdminOverviewPage() {
 
   return (
     <div className="space-y-6">
-      {/* 2.1 Demo Data Information Banner */}
-      <div className="p-3.5 sm:px-4 sm:py-3 rounded-[2px] bg-[#faf7ef] border border-[#dcd0b5] shadow-xs flex items-start sm:items-center justify-between gap-3 text-xs">
-        <div className="flex items-start sm:items-center gap-2.5">
-          <div className="w-5 h-5 rounded-[2px] bg-[#fffefa] border border-[#dcd0b5] text-[#8e7139] grid place-items-center shrink-0 mt-0.5 sm:mt-0">
-            <Info className="w-3.5 h-3.5" />
-          </div>
-          <span className="text-[#5c685e] leading-relaxed">
-            <strong className="text-[#17271e] font-semibold">Demo Environment &amp; Local State:</strong> The figures, enquiries and activity logs displayed below are sample catering records for administrative evaluation. No live database or backend is connected.
-          </span>
-        </div>
-        <span className="shrink-0 text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-[2px] bg-[#ffffff] text-[#8e7139] border border-[#dcd0b5]">
-          Sample Data
-        </span>
-      </div>
-
       {/* 2.2 KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* KPI 1: Total Customers */}
