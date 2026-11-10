@@ -7,7 +7,7 @@ import {
   Save,
   Sparkles,
   FileSpreadsheet,
-  ScanLine,
+
   CheckCircle2,
   Layers,
   RotateCcw,
@@ -16,9 +16,18 @@ import {
   Printer,
   ArrowRight,
   Info,
+  Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import { MOCK_CORPORATE_CUSTOMERS } from "@/lib/data/mock-admin-data";
+import type { CorporateCustomer } from "@/types/admin";
 import { DailyBillingEntry, BillingRateSource } from "@/types/billing";
+import {
+  getActiveCustomers,
+  saveDraftInvoice,
+  issueInvoice,
+} from "@/lib/services/billing-service";
+import { InvoiceStatusBadge } from "@/components/admin/billing/invoices/invoice-status-badge";
 import {
   MONTH_NAMES,
   generateMonthlyCalendar,
@@ -41,9 +50,12 @@ import {
 const LOCAL_STORAGE_KEY = "bcs_billing_draft_v1";
 
 export default function MonthlyBillingPage() {
-  // Find initial default customer (HYDAC)
+  const [customers, setCustomers] = useState<CorporateCustomer[]>(MOCK_CORPORATE_CUSTOMERS);
+
+  // Find initial default customer
   const defaultCustomer =
-    MOCK_CORPORATE_CUSTOMERS.find((c) => c.id === "cust-hydac") ||
+    customers.find((c) => c.id === "cust-hydac") ||
+    customers[0] ||
     MOCK_CORPORATE_CUSTOMERS[0];
 
   // 1. Navigation View Mode: "LEDGER" (Daily Entry Table) or "INVOICE" (A4 Invoice Preview)
@@ -75,6 +87,12 @@ export default function MonthlyBillingPage() {
   const [isClearModalOpen, setIsClearModalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Database Draft & Finalization state
+  const [draftInvoiceId, setDraftInvoiceId] = useState<string | null>(null);
+  const [isIssued, setIsIssued] = useState<boolean>(false);
+  const [isIssuing, setIsIssuing] = useState<boolean>(false);
+  const [isSavingDraft, setIsSavingDraft] = useState<boolean>(false);
+
   // Staged reconciliation import banner state
   const [stagedImportMeta, setStagedImportMeta] = useState<{
     appliedAt: string;
@@ -87,7 +105,7 @@ export default function MonthlyBillingPage() {
 
   // Active customer object
   const currentCustomer =
-    MOCK_CORPORATE_CUSTOMERS.find((c) => c.id === selectedCustomerId) || defaultCustomer;
+    customers.find((c) => c.id === selectedCustomerId) || defaultCustomer;
 
   // Show auto-dismissing toast feedback
   const triggerToast = (msg: string) => {
@@ -187,6 +205,13 @@ export default function MonthlyBillingPage() {
       console.warn("Could not load billing draft:", e);
     }
 
+    // Load live customers from Supabase
+    getActiveCustomers().then((loaded) => {
+      if (loaded && loaded.length > 0) {
+        setCustomers(loaded);
+      }
+    });
+
     // Default initialization: Generate blank November 2026 calendar at HYDAC default rate (₹48.00)
     const initialCalendar = generateMonthlyCalendar(10, 2026, "BREAKFAST & DINNER");
     setDailyEntries(initialCalendar);
@@ -199,7 +224,7 @@ export default function MonthlyBillingPage() {
   // When customer changes: automatically load customer default rate & preset
   const handleCustomerChange = (customerId: string) => {
     setSelectedCustomerId(customerId);
-    const customer = MOCK_CORPORATE_CUSTOMERS.find((c) => c.id === customerId);
+    const customer = customers.find((c) => c.id === customerId);
     if (customer) {
       if (customer.deliveryLocation) {
         setUnitLocation(customer.deliveryLocation);
@@ -216,7 +241,7 @@ export default function MonthlyBillingPage() {
       }
       setIsDemoSampleActive(false);
       triggerToast(
-        `Switched customer to ${customer.shortCode}. Loaded default contract rate (₹${customer.defaultRate.toFixed(2)}/meal).`
+        `Switched customer to ${customer.shortCode}. Loaded default contract rate (â‚¹${customer.defaultRate.toFixed(2)}/meal).`
       );
     }
   };
@@ -358,7 +383,7 @@ export default function MonthlyBillingPage() {
     triggerToast("All daily meal counts have been reset to 0.");
   };
 
-  // Load original prototype demo sample record (November 2026 @ ₹70)
+  // Load original prototype demo sample record (November 2026 @ â‚¹70)
   const handleLoadSample = () => {
     setSelectedCustomerId("cust-hydac");
     setMonth(10);
@@ -371,14 +396,16 @@ export default function MonthlyBillingPage() {
     const sample = generateSampleBillingData(10, 2026, 70.0);
     setDailyEntries(sample);
     triggerToast(
-      "Loaded reference sample billing scenario (Nov 2026 @ ₹70.00/meal)."
+      "Loaded reference sample billing scenario (Nov 2026 @ â‚¹70.00/meal)."
     );
   };
 
-  // Save draft locally
-  const handleSaveDraft = () => {
+  // Save draft locally & persist to Supabase
+  const handleSaveDraft = async () => {
+    setIsSavingDraft(true);
     try {
       const draft = {
+        draftId: draftInvoiceId,
         customerId: selectedCustomerId,
         billNo,
         month,
@@ -397,10 +424,98 @@ export default function MonthlyBillingPage() {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(draft));
       clearStagedSession();
       setStagedImportMeta(null);
-      triggerToast("Draft billing state saved locally in your browser!");
+
+      // Save to Supabase backend
+      const res = await saveDraftInvoice({
+        draftId: draftInvoiceId,
+        customerId: selectedCustomerId,
+        month,
+        year,
+        startDate,
+        endDate,
+        invoiceDate,
+        unitLocation,
+        rate,
+        rateSource,
+        activePreset,
+        dailyEntries,
+        kpis,
+      });
+
+      if (res.success && res.invoiceId) {
+        setDraftInvoiceId(res.invoiceId);
+        triggerToast("Draft billing state saved to Supabase database!");
+      } else {
+        triggerToast("Draft saved locally in your browser.");
+      }
     } catch (err) {
       console.warn("Storage save error:", err);
       triggerToast("Could not save draft to local storage.");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
+  // Issue & Finalize official invoice
+  const handleIssueInvoice = async () => {
+    if (dailyEntries.length === 0) {
+      triggerToast("Cannot issue invoice with 0 daily records.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Issue official catering invoice for ${currentCustomer?.name} (${MONTH_NAMES[month]} ${year})?\n\n` +
+      `Total Meals: ${kpis.totalBillQty.toLocaleString("en-IN")}\n` +
+      `Total Amount: ₹${kpis.totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n\n` +
+      `Once issued, a permanent invoice number (BCS/YYYY-YY/XXX) will be assigned and the financial figures will be permanently locked against alteration.`
+    );
+    if (!confirmed) return;
+
+    setIsIssuing(true);
+    try {
+      // 1. Ensure latest draft is in Supabase
+      const draftRes = await saveDraftInvoice({
+        draftId: draftInvoiceId,
+        customerId: selectedCustomerId,
+        month,
+        year,
+        startDate,
+        endDate,
+        invoiceDate,
+        unitLocation,
+        rate,
+        rateSource,
+        activePreset,
+        dailyEntries,
+        kpis,
+      });
+
+      const targetId = draftRes.invoiceId || draftInvoiceId;
+      if (!targetId) {
+        triggerToast(draftRes.error || "Failed to create draft record before issuing.");
+        setIsIssuing(false);
+        return;
+      }
+
+      setDraftInvoiceId(targetId);
+
+      // 2. Issue the invoice
+      const issueRes = await issueInvoice(targetId);
+      if (issueRes.success && issueRes.invoiceNumber) {
+        setBillNo(issueRes.invoiceNumber);
+        setIsIssued(true);
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        clearStagedSession();
+        setStagedImportMeta(null);
+        triggerToast(`Invoice ${issueRes.invoiceNumber} successfully issued and finalized!`);
+      } else {
+        triggerToast(issueRes.error || "Failed to issue invoice in database.");
+      }
+    } catch (err: any) {
+      console.error("Error issuing invoice:", err);
+      triggerToast(err.message || "Failed to issue invoice.");
+    } finally {
+      setIsIssuing(false);
     }
   };
 
@@ -432,7 +547,7 @@ export default function MonthlyBillingPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#123c2c]/10 text-[#123c2c] border border-[#123c2c]/20">
-                  In-Session Only • Unsaved Draft
+                  In-Session Only â€¢ Unsaved Draft
                 </span>
                 <span className="text-xs text-[#5c685e] font-medium">
                   {stagedImportMeta.sourceDocument}
@@ -525,7 +640,7 @@ export default function MonthlyBillingPage() {
             type="button"
             onClick={handleLoadSample}
             className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#ddcca6] bg-[#fbf6e9] hover:bg-[#f4eee1] px-3 py-2 text-xs font-bold text-[#8e7139] transition-colors cursor-pointer shadow-xs"
-            title="Load reference scenario (November 2026 @ ₹70.00)"
+            title="Load reference scenario (November 2026 @ â‚¹70.00)"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#c7a45b]" />
             <span>Load Sample Record</span>
@@ -550,13 +665,7 @@ export default function MonthlyBillingPage() {
             <FileSpreadsheet className="w-3.5 h-3.5 text-[#8e7139]" />
             <span>Invoices Archive</span>
           </Link>
-          <Link
-            href="/admin/billing/upload"
-            className="inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-2 text-xs font-semibold text-[#5c685e] hover:text-[#123c2c] transition-colors shadow-xs"
-          >
-            <ScanLine className="w-3.5 h-3.5 text-[#8e7139]" />
-            <span>Ledger Scanner</span>
-          </Link>
+
         </div>
       </div>
 
@@ -576,11 +685,11 @@ export default function MonthlyBillingPage() {
                       Demo Sample Scenario Active
                     </span>
                     <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-[#fbf6e9] text-[#8e7139] border border-[#ddcca6]">
-                      November 2026 • ₹70.00 / Meal
+                      November 2026 â€¢ â‚¹70.00 / Meal
                     </span>
                   </div>
                   <p className="text-xs text-[#69746a] leading-relaxed m-0">
-                    Displaying reference billing scenario: 1,704 billable meals @ ₹70.00 = <strong className="text-[#17271e]">₹1,19,280.00</strong> pre-tax. This is demonstration test data and does not alter HYDAC’s directory contract rate (₹48.00).
+                    Displaying reference billing scenario: 1,704 billable meals @ â‚¹70.00 = <strong className="text-[#17271e]">â‚¹1,19,280.00</strong> pre-tax. This is demonstration test data and does not alter HYDACâ€™s directory contract rate (â‚¹48.00).
                   </p>
                 </div>
               </div>
@@ -590,13 +699,13 @@ export default function MonthlyBillingPage() {
                   setRate(48.0);
                   setRateSource("CUSTOMER_DEFAULT");
                   setIsDemoSampleActive(false);
-                  triggerToast("Applied HYDAC customer default rate (₹48.00/meal).");
+                  triggerToast("Applied HYDAC customer default rate (â‚¹48.00/meal).");
                 }}
                 className="shrink-0 inline-flex items-center gap-1.5 rounded-[2px] border border-[#dcd0b5] bg-[#ffffff] hover:bg-[#faf7ef] px-3 py-1.5 text-xs font-bold text-[#123c2c] transition-colors cursor-pointer shadow-xs"
-                title="Reset to HYDAC default rate of ₹48.00/meal"
+                title="Reset to HYDAC default rate of â‚¹48.00/meal"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
-                <span>Apply HYDAC Rate (₹48.00)</span>
+                <span>Apply HYDAC Rate (â‚¹48.00)</span>
               </button>
             </div>
           )}
@@ -611,7 +720,7 @@ export default function MonthlyBillingPage() {
 
           {/* 1. Configuration Card (Section 5) */}
           <BillingConfigCard
-            customers={MOCK_CORPORATE_CUSTOMERS}
+            customers={customers}
             selectedCustomerId={selectedCustomerId}
             onCustomerChange={handleCustomerChange}
             billNo={billNo}
@@ -697,6 +806,10 @@ export default function MonthlyBillingPage() {
             entries={dailyEntries}
             kpis={kpis}
             onBackToEdit={() => setViewMode("LEDGER")}
+            onIssueInvoice={handleIssueInvoice}
+            isIssuing={isIssuing}
+            isIssued={isIssued}
+            statusBadge={isIssued ? <InvoiceStatusBadge status="GENERATED" size="sm" /> : undefined}
           />
         </div>
       )}

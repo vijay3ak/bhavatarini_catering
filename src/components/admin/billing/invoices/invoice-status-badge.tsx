@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, Clock, FileCheck } from "lucide-react";
+import { CheckCircle2, Clock, FileCheck, XCircle, FileEdit } from "lucide-react";
 import type { InvoiceArchiveStatus } from "@/types/billing";
 
 interface InvoiceStatusBadgeProps {
@@ -44,6 +44,28 @@ export function InvoiceStatusBadge({ status, size = "md" }: InvoiceStatusBadgePr
         >
           <FileCheck className={isSm ? "w-3 h-3 text-[#8e7139]" : "w-3.5 h-3.5 text-[#8e7139]"} />
           <span>Generated</span>
+        </span>
+      );
+    case "CANCELLED":
+      return (
+        <span
+          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-[2px] border border-red-300 bg-red-50 text-red-800 shadow-xs ${
+            isSm ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1"
+          }`}
+        >
+          <XCircle className={isSm ? "w-3 h-3 text-red-600" : "w-3.5 h-3.5 text-red-600"} />
+          <span>Cancelled</span>
+        </span>
+      );
+    case "DRAFT":
+      return (
+        <span
+          className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider rounded-[2px] border border-slate-300 bg-slate-100 text-slate-700 shadow-xs ${
+            isSm ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1"
+          }`}
+        >
+          <FileEdit className={isSm ? "w-3 h-3 text-slate-500" : "w-3.5 h-3.5 text-slate-500"} />
+          <span>Draft</span>
         </span>
       );
   }

@@ -2,14 +2,19 @@
 
 import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { AdminSidebar } from "./admin-sidebar";
+import { AdminSidebar, type AdminProfileSummary } from "./admin-sidebar";
 
 interface AdminMobileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  initialProfile?: AdminProfileSummary | null;
 }
 
-export function AdminMobileDrawer({ isOpen, onClose }: AdminMobileDrawerProps) {
+export function AdminMobileDrawer({
+  isOpen,
+  onClose,
+  initialProfile,
+}: AdminMobileDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -85,7 +90,7 @@ export function AdminMobileDrawer({ isOpen, onClose }: AdminMobileDrawerProps) {
 
         {/* Sidebar Content */}
         <div className="flex-1 overflow-hidden">
-          <AdminSidebar onNavigate={onClose} />
+          <AdminSidebar onNavigate={onClose} initialProfile={initialProfile} />
         </div>
       </div>
     </div>

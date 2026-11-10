@@ -39,6 +39,40 @@ export type CustomerPresetContract =
   | "LUNCH"
   | "CUSTOM";
 
+export interface CustomerAddressRecord {
+  id: string;
+  address_type: "billing" | "delivery";
+  address_line: string;
+  city: string;
+  pincode: string | null;
+  is_default: boolean;
+}
+
+export interface CustomerContactRecord {
+  id: string;
+  contact_name: string;
+  phone: string;
+  email: string | null;
+  designation: string | null;
+  is_primary: boolean;
+}
+
+export interface CustomerRecord {
+  id: string;
+  customer_code: string;
+  company_name: string;
+  gstin: string | null;
+  pan: string | null;
+  contract_status: CustomerContractStatus;
+  default_rate: number | null;
+  default_preset: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  customer_addresses?: CustomerAddressRecord[] | null;
+  customer_contacts?: CustomerContactRecord[] | null;
+}
+
 export interface CorporateCustomer {
   id: string;
   name: string;

@@ -40,3 +40,10 @@ next-env.d.ts
 *.tmp
 *.bak
 .vercel
+
+# Supabase CLI local session & cache
+/supabase/.temp/
+
+# Browser automation test profiles in scratch (preserve scripts & reports)
+/scratch/chrome-debug*/
+/scratch/chrome-profile*/

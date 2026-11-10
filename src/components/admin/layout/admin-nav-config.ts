@@ -4,7 +4,6 @@ import {
   Building2,
   Receipt,
   FileText,
-  ScanLine,
   Settings,
   ExternalLink,
   type LucideIcon,
@@ -57,11 +56,7 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
         href: "/admin/billing/invoices",
         icon: FileText,
       },
-      {
-        label: "Ledger Scanner",
-        href: "/admin/billing/upload",
-        icon: ScanLine,
-      },
+      // Note: Ledger Scanner (/admin/billing/upload) is preserved and deferred to V2
     ],
   },
   {

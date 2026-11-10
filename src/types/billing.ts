@@ -236,7 +236,17 @@ export interface BillingSessionStagingPayload {
  * Invoice Archive Status
  * Consistent uppercase enum union values
  */
-export type InvoiceArchiveStatus = "PAID" | "PENDING" | "GENERATED";
+export type InvoiceArchiveStatus = "PAID" | "PENDING" | "GENERATED" | "CANCELLED" | "DRAFT";
+
+export interface InvoicePaymentRecord {
+  id: string;
+  invoiceId?: string;
+  amount: number;
+  paymentDate: string;
+  paymentReference?: string;
+  notes?: string;
+  createdAt?: string;
+}
 
 /**
  * Archived Invoice Snapshot
@@ -258,8 +268,14 @@ export interface ArchivedInvoice {
   kpis: BillingKpiSummary;
   entries: DailyBillingEntry[];
   status: InvoiceArchiveStatus;
+  rawStatus?: "DRAFT" | "ISSUED" | "CANCELLED";
+  paymentStatus?: "UNPAID" | "PARTIALLY_PAID" | "PAID";
+  totalPaid?: number;
+  outstandingBalance?: number;
   paymentDate?: string;
   paymentReference?: string;
+  payments?: InvoicePaymentRecord[];
+  cancellationReason?: string;
   notes?: string;
   createdAt: string;
 }

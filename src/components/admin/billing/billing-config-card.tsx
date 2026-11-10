@@ -105,7 +105,7 @@ export function BillingConfigCard({
         </div>
       </div>
 
-      {/* 2. Group 1: Corporate Client & Tax Registration */}
+      {/* 2. Group 1: Corporate Client & Business Identifiers */}
       <div className="space-y-3">
         <div className="text-[10.5px] font-bold tracking-[1.5px] uppercase text-[#8e7139]">
           Client Information
@@ -132,22 +132,22 @@ export function BillingConfigCard({
             </select>
           </div>
 
-          {/* Tax Identifier Chips */}
+          {/* Client Identifier Chips */}
           <div className="md:col-span-6 space-y-1.5">
             <div className="h-6 flex items-center text-xs font-semibold text-[#17271e]">
-              <span>Registered Tax Identifiers</span>
+              <span>Client Identifiers</span>
             </div>
             <div className="flex flex-wrap items-center gap-2 min-h-[36px]">
               <div className="inline-flex items-center gap-1.5 px-2.5 h-9 rounded-[2px] bg-[#faf7ef] border border-[#e5ddcd] text-xs box-border">
                 <span className="font-semibold text-[#69746a]">GSTIN:</span>
                 <span className="font-mono text-[#17271e] font-semibold">
-                  {currentCustomer?.gstin || "—"}
+                  {currentCustomer?.gstin || "â€”"}
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 h-9 rounded-[2px] bg-[#faf7ef] border border-[#e5ddcd] text-xs box-border">
                 <span className="font-semibold text-[#69746a]">PAN:</span>
                 <span className="font-mono text-[#17271e] font-semibold">
-                  {currentCustomer?.pan || "—"}
+                  {currentCustomer?.pan || "â€”"}
                 </span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-2.5 h-9 rounded-[2px] bg-[#faf7ef] border border-[#e5ddcd] text-xs box-border">
@@ -281,12 +281,12 @@ export function BillingConfigCard({
             />
           </div>
 
-          {/* Rate (₹ / meal) */}
+          {/* Rate (â‚¹ / meal) */}
           <div className="sm:col-span-3 space-y-1.5">
             <div className="h-6 flex items-center justify-between text-[11px] font-semibold text-[#5c685e]">
               <label htmlFor="cfg-unit-rate" className="flex items-center gap-1 cursor-pointer">
                 <IndianRupee className="w-3 h-3 text-[#8e7139]" />
-                <span>Unit Rate (₹/meal)</span>
+                <span>Unit Rate (â‚¹/meal)</span>
               </label>
               {/* Rate Source Chip */}
               {rateSource === "CUSTOMER_DEFAULT" && (
@@ -316,7 +316,7 @@ export function BillingConfigCard({
             </div>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-xs text-[#8e7139] font-bold">
-                ₹
+                â‚¹
               </span>
               <input
                 id="cfg-unit-rate"

@@ -1,45 +1,77 @@
-"use client";
+import React from "react";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getSafeRedirectUrl } from "@/lib/auth/redirect";
+import { AdminClientShell } from "@/components/admin/layout/admin-client-shell";
+import type { AdminProfileSummary } from "@/components/admin/layout/admin-sidebar";
 
-import React, { useState } from "react";
-import { AdminSidebar } from "@/components/admin/layout/admin-sidebar";
-import { AdminHeader } from "@/components/admin/layout/admin-header";
-import { AdminMobileDrawer } from "@/components/admin/layout/admin-mobile-drawer";
-
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname") || "";
+
+  // Public authentication routes under /admin render their own standalone auth container
+  const isAuthPage =
+    pathname === "/admin/login" ||
+    pathname.startsWith("/admin/login/") ||
+    pathname.startsWith("/admin/forgot-password") ||
+    pathname.startsWith("/admin/accept-invite");
+
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // In local development before .env.local setup, permit bootstrap render
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return <AdminClientShell>{children}</AdminClientShell>;
+  }
+
+  let user = null;
+  let profile: AdminProfileSummary | null = null;
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+
+    user = authUser;
+
+    if (user) {
+      const { data: profileData } = await (supabase.from("admin_profiles") as any)
+        .select("id, email, full_name, role_id, is_active")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      profile = profileData as AdminProfileSummary | null;
+    }
+  } catch {
+    // Fail securely: if database check errors in production, deny access
+    if (process.env.NODE_ENV === "production") {
+      redirect("/admin/login?error=access_denied");
+    }
+    return <AdminClientShell>{children}</AdminClientShell>;
+  }
+
+  if (!user) {
+    const safeNext = getSafeRedirectUrl(pathname || "/admin");
+    redirect(`/admin/login?next=${encodeURIComponent(safeNext)}`);
+  }
+
+  if (!profile || !profile.is_active) {
+    redirect("/admin/login?error=access_denied");
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f1] text-[#17271e] print:min-h-0 print:h-auto print:bg-white print:text-black">
-      {/* Brand Top Bar */}
-      <div
-        aria-hidden="true"
-        className="h-1 w-full bg-gradient-to-r from-[#123c2c] via-[#c7a45b] to-[#1c573e] shrink-0 print:hidden"
-      />
-
-      <div className="flex-1 flex overflow-hidden print:overflow-visible print:block print:h-auto">
-        {/* Desktop Sidebar (Fixed Width, Visible >= lg) */}
-        <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-[#c7a45b]/20 print:hidden">
-          <AdminSidebar />
-        </aside>
-
-        {/* Mobile Navigation Drawer (< lg) */}
-        <AdminMobileDrawer
-          isOpen={mobileDrawerOpen}
-          onClose={() => setMobileDrawerOpen(false)}
-        />
-
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto print:overflow-visible print:block print:h-auto print:min-h-0 print:p-0">
-          <AdminHeader onToggleMobileMenu={() => setMobileDrawerOpen(true)} />
-          <main className="flex-1 p-4 md:p-8 print:p-0 print:m-0 print:block print:h-auto print:max-w-none">
-            <div className="max-w-7xl mx-auto print:max-w-none print:w-full print:m-0 print:p-0">{children}</div>
-          </main>
-        </div>
-      </div>
-    </div>
+    <AdminClientShell verifiedProfile={profile}>
+      {children}
+    </AdminClientShell>
   );
 }

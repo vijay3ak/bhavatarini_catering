@@ -1,52 +1,96 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   FileText,
   ArrowLeft,
-  Info,
-  ShieldCheck,
   RotateCcw,
-  Sparkles,
+  CheckCircle2,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
-import { MOCK_ARCHIVED_INVOICES, MOCK_CORPORATE_CUSTOMERS } from "@/lib/data/mock-admin-data";
 import type { ArchivedInvoice } from "@/types/billing";
+import { getInvoices, getInvoiceDetails } from "@/lib/services/billing-service";
 import { InvoiceArchiveKpiCards } from "@/components/admin/billing/invoices/invoice-archive-kpi-cards";
 import { InvoiceArchiveFilters } from "@/components/admin/billing/invoices/invoice-archive-filters";
 import { InvoiceArchiveTable } from "@/components/admin/billing/invoices/invoice-archive-table";
 import { InvoicePreview } from "@/components/admin/billing/invoice-preview";
 import { InvoiceStatusBadge } from "@/components/admin/billing/invoices/invoice-status-badge";
+import { RecordPaymentModal } from "@/components/admin/billing/invoices/record-payment-modal";
 
 export default function InvoiceHistoryArchivePage() {
+  const [invoices, setInvoices] = useState<ArchivedInvoice[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState("ALL");
   const [selectedPeriod, setSelectedPeriod] = useState("ALL");
   const [selectedStatus, setSelectedStatus] = useState("ALL");
+
+  // Inspection & Payment Modal State
   const [selectedInvoice, setSelectedInvoice] = useState<ArchivedInvoice | null>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [paymentTargetInvoice, setPaymentTargetInvoice] = useState<ArchivedInvoice | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((cur) => (cur === msg ? null : cur));
+    }, 3500);
+  };
+
+  // Fetch invoices from Supabase
+  const loadInvoices = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const liveData = await getInvoices();
+      setInvoices(liveData || []);
+    } catch (err: unknown) {
+      console.warn("Could not query invoices from database:", err);
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : "Unable to load invoices from database. Please verify your connection."
+      );
+      setInvoices([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadInvoices();
+  }, [loadInvoices]);
 
   // Extract unique customer options
   const customerOptions = useMemo(() => {
-    return MOCK_CORPORATE_CUSTOMERS.filter((c) =>
-      MOCK_ARCHIVED_INVOICES.some(
-        (inv) => inv.customer.id === c.id || inv.customer.shortCode === c.shortCode
-      )
-    ).map((c) => ({
-      id: c.id,
-      name: c.name,
-      shortCode: c.shortCode,
-    }));
-  }, []);
+    const custMap = new Map<string, { id: string; name: string; shortCode: string }>();
+    for (const inv of invoices) {
+      if (inv.customer) {
+        custMap.set(inv.customer.id || inv.customer.shortCode, {
+          id: inv.customer.id || inv.customer.shortCode,
+          name: inv.customer.name,
+          shortCode: inv.customer.shortCode,
+        });
+      }
+    }
+    return Array.from(custMap.values());
+  }, [invoices]);
 
   // Extract unique billing period options (sorted newest first)
   const periodOptions = useMemo(() => {
     const periodSet = new Set<string>();
-    for (const inv of MOCK_ARCHIVED_INVOICES) {
+    for (const inv of invoices) {
       periodSet.add(`${inv.month} ${inv.year}`);
     }
     return Array.from(periodSet);
-  }, []);
+  }, [invoices]);
 
   // Check if any filter is active
   const hasActiveFilters = Boolean(
@@ -66,7 +110,7 @@ export default function InvoiceHistoryArchivePage() {
 
   // Filter & sort invoices (newest invoice date first)
   const filteredInvoices = useMemo(() => {
-    let result = [...MOCK_ARCHIVED_INVOICES];
+    let result = [...invoices];
 
     // 1. Text Search across bill no, client name, code, delivery location
     if (searchQuery.trim()) {
@@ -110,11 +154,37 @@ export default function InvoiceHistoryArchivePage() {
     result.sort((a, b) => b.invoiceDate.localeCompare(a.invoiceDate));
 
     return result;
-  }, [searchQuery, selectedCustomer, selectedPeriod, selectedStatus]);
+  }, [invoices, searchQuery, selectedCustomer, selectedPeriod, selectedStatus]);
 
-  // Handle invoice action: Open full InvoicePreview in read-only mode
-  const handleViewInvoice = (inv: ArchivedInvoice) => {
-    setSelectedInvoice(inv);
+  // Handle invoice action: Open full InvoicePreview
+  const handleViewInvoice = async (inv: ArchivedInvoice) => {
+    if (inv.entries && inv.entries.length > 0) {
+      setSelectedInvoice(inv);
+      return;
+    }
+
+    // Fetch full details from database
+    setIsLoadingDetails(true);
+    try {
+      const fullDetails = await getInvoiceDetails(inv.id);
+      setSelectedInvoice(fullDetails || inv);
+    } catch {
+      setSelectedInvoice(inv);
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  };
+
+  // Open Payment Recording Modal
+  const handleOpenPaymentModal = (inv: ArchivedInvoice) => {
+    setPaymentTargetInvoice(inv);
+    setIsPaymentModalOpen(true);
+  };
+
+  // Handle Payment Recorded successfully
+  const handlePaymentSuccess = async (amount: number) => {
+    triggerToast(`Payment of ₹${amount.toLocaleString("en-IN")} recorded successfully in Supabase!`);
+    await loadInvoices();
   };
 
   // If an invoice is selected, render the full InvoicePreview with Back to Archive action
@@ -146,6 +216,14 @@ export default function InvoiceHistoryArchivePage() {
 
   return (
     <div className="space-y-6">
+      {/* Toast Feedback Notification Banner */}
+      {toastMessage && (
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-[2px] bg-[#123c2c] text-[#faf8f1] border border-[#c7a45b] px-4 py-2.5 shadow-xl text-xs font-semibold animate-in fade-in slide-in-from-top-2 print:hidden">
+          <CheckCircle2 className="h-4 w-4 text-[#c7a45b] shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* 1. Page Header & Back Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-3 border-b border-[#e5ddcd]">
         <div>
@@ -172,30 +250,35 @@ export default function InvoiceHistoryArchivePage() {
         </div>
       </div>
 
-      {/* 2. Tasteful Demonstration Data Notice */}
-      <div className="rounded-[2px] border border-[#e5ddcd] bg-[#faf7ef] p-4 shadow-xs">
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-[2px] bg-[#fffefa] border border-[#dcd0b5] text-[#8e7139] grid place-items-center shrink-0 mt-0.5">
-            <Info className="w-4 h-4" />
-          </div>
-          <div className="flex-1 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-[#123c2c] uppercase tracking-wide text-[11px]">
-                Demonstration Archive Data
-              </span>
-              <span className="px-2 py-0.5 rounded-[2px] text-[10px] font-bold bg-[#fbf6e9] text-[#8e7139] border border-[#ddcca6]">
-                Simulated Records
-              </span>
+      {/* 2. Error Message Banner */}
+      {errorMessage && (
+        <div className="rounded-[2px] border border-amber-300 bg-amber-50 p-4 shadow-xs">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-[2px] bg-white border border-amber-300 text-amber-800 grid place-items-center shrink-0 mt-0.5">
+              <AlertCircle className="w-4 h-4" />
             </div>
-            <p className="text-[#5c685e] mt-1 leading-relaxed m-0">
-              These are sample invoice records created for demonstration. No actual customer payments or financial transactions are represented.
-            </p>
+            <div className="flex-1 text-xs">
+              <span className="font-bold text-amber-900 uppercase tracking-wide text-[11px]">
+                Database Connection Alert
+              </span>
+              <p className="text-amber-800 mt-1 leading-relaxed m-0">
+                {errorMessage}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={loadInvoices}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-900 bg-white hover:bg-amber-100 border border-amber-300 rounded-[2px] transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Retry</span>
+            </button>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 3. Four Archive KPI Summary Cards */}
-      <InvoiceArchiveKpiCards invoices={MOCK_ARCHIVED_INVOICES} />
+      <InvoiceArchiveKpiCards invoices={invoices} />
 
       {/* 4. Filter & Search Controls */}
       <InvoiceArchiveFilters
@@ -212,14 +295,38 @@ export default function InvoiceHistoryArchivePage() {
         hasActiveFilters={hasActiveFilters}
         onResetFilters={handleResetFilters}
         totalFiltered={filteredInvoices.length}
-        totalCount={MOCK_ARCHIVED_INVOICES.length}
+        totalCount={invoices.length}
       />
 
-      {/* 5. Invoice Table / Responsive Mobile Cards */}
-      <InvoiceArchiveTable
-        invoices={filteredInvoices}
-        onResetFilters={handleResetFilters}
-        onViewInvoice={handleViewInvoice}
+      {/* 5. Invoice Table / Responsive Mobile Cards / Loading State */}
+      {isLoading ? (
+        <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-12 text-center shadow-xs">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#faf7ef] border border-[#dcd0b5] text-[#8e7139] mb-3 animate-spin">
+            <Loader2 className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-[#5c685e] font-medium m-0">
+            Loading invoices from database...
+          </p>
+        </div>
+      ) : (
+        <InvoiceArchiveTable
+          invoices={filteredInvoices}
+          hasActiveFilters={hasActiveFilters}
+          onResetFilters={handleResetFilters}
+          onViewInvoice={handleViewInvoice}
+          onRecordPayment={handleOpenPaymentModal}
+        />
+      )}
+
+      {/* 6. Record Payment Modal */}
+      <RecordPaymentModal
+        isOpen={isPaymentModalOpen}
+        invoice={paymentTargetInvoice}
+        onClose={() => {
+          setIsPaymentModalOpen(false);
+          setPaymentTargetInvoice(null);
+        }}
+        onSuccess={handlePaymentSuccess}
       />
     </div>
   );

@@ -1,32 +1,32 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   Building2,
   Search,
   Plus,
   MapPin,
-  FileText,
-  DollarSign,
-  Tag,
   Receipt,
   Edit2,
   Eye,
-  SlidersHorizontal,
   RotateCcw,
   CheckCircle2,
   AlertCircle,
   LayoutGrid,
   List,
+  Loader2,
 } from "lucide-react";
-import { MOCK_CORPORATE_CUSTOMERS } from "@/lib/data/mock-admin-data";
-import { CorporateCustomer, CustomerContractStatus } from "@/types/admin";
+import { CustomerRecord, CustomerContractStatus } from "@/types/admin";
 import { CustomerFormModal } from "@/components/admin/customers/customer-form-modal";
 import { CustomerDetailsModal } from "@/components/admin/customers/customer-details-modal";
+import { createClient } from "@/lib/supabase/client";
 
 export default function CorporateCustomersPage() {
-  const [customers, setCustomers] = useState<CorporateCustomer[]>(MOCK_CORPORATE_CUSTOMERS);
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [contractFilter, setContractFilter] = useState<string>("ALL");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
@@ -34,35 +34,96 @@ export default function CorporateCustomersPage() {
   // Modals state
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [formModalOpen, setFormModalOpen] = useState(false);
-  const [activeCustomer, setActiveCustomer] = useState<CorporateCustomer | null>(null);
+  const [activeCustomer, setActiveCustomer] = useState<CustomerRecord | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
+
+  // Live customer fetch from Supabase Data API
+  const fetchCustomers = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { data, error: fetchErr } = await (supabase.from("customers") as any)
+        .select(`
+          id,
+          customer_code,
+          company_name,
+          gstin,
+          pan,
+          contract_status,
+          default_rate,
+          default_preset,
+          notes,
+          created_at,
+          updated_at,
+          customer_addresses (
+            id,
+            address_type,
+            address_line,
+            city,
+            pincode,
+            is_default
+          ),
+          customer_contacts (
+            id,
+            contact_name,
+            phone,
+            email,
+            designation,
+            is_primary
+          )
+        `)
+        .order("company_name", { ascending: true });
+
+      if (fetchErr) {
+        console.error("Failed to load customers from Supabase:", fetchErr);
+        setError("Unable to retrieve corporate customer profiles from Supabase.");
+      } else {
+        setCustomers((data as CustomerRecord[]) || []);
+      }
+    } catch (err: unknown) {
+      console.error("Unexpected error fetching customers:", err);
+      setError("Connection error while communicating with Supabase Data API.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   // Filtered customers
   const filteredCustomers = useMemo(() => {
     return customers.filter((cust) => {
       const q = searchQuery.toLowerCase().trim();
+      const delivery =
+        cust.customer_addresses?.find((a) => a.address_type === "delivery")?.address_line.toLowerCase() || "";
+      const billing =
+        cust.customer_addresses?.find((a) => a.address_type === "billing")?.address_line.toLowerCase() || "";
+
       const matchSearch =
         !q ||
-        cust.name.toLowerCase().includes(q) ||
-        cust.shortCode.toLowerCase().includes(q) ||
-        cust.deliveryLocation.toLowerCase().includes(q) ||
-        cust.billingAddress.toLowerCase().includes(q) ||
-        cust.gstin.toLowerCase().includes(q);
+        cust.company_name.toLowerCase().includes(q) ||
+        cust.customer_code.toLowerCase().includes(q) ||
+        delivery.includes(q) ||
+        billing.includes(q) ||
+        (cust.gstin && cust.gstin.toLowerCase().includes(q));
 
       const matchContract =
-        contractFilter === "ALL" || cust.contractStatus === contractFilter;
+        contractFilter === "ALL" || cust.contract_status === contractFilter;
 
       return matchSearch && matchContract;
     });
   }, [customers, searchQuery, contractFilter]);
 
   // Handlers
-  const handleOpenDetails = (cust: CorporateCustomer) => {
+  const handleOpenDetails = (cust: CustomerRecord) => {
     setActiveCustomer(cust);
     setDetailsModalOpen(true);
   };
@@ -72,21 +133,18 @@ export default function CorporateCustomersPage() {
     setFormModalOpen(true);
   };
 
-  const handleOpenEditModal = (cust: CorporateCustomer) => {
+  const handleOpenEditModal = (cust: CustomerRecord) => {
     setActiveCustomer(cust);
     setFormModalOpen(true);
   };
 
-  const handleSaveCustomer = (savedCustomer: CorporateCustomer) => {
-    setCustomers((prev) => {
-      const exists = prev.some((c) => c.id === savedCustomer.id);
-      if (exists) {
-        return prev.map((c) => (c.id === savedCustomer.id ? savedCustomer : c));
-      } else {
-        return [savedCustomer, ...prev];
-      }
-    });
-    showToast(`Saved customer profile for ${savedCustomer.name}`);
+  const handleCustomerSaved = () => {
+    fetchCustomers();
+    showToast(
+      activeCustomer
+        ? "Customer profile updated successfully."
+        : "Customer profile created and saved to database."
+    );
   };
 
   return (
@@ -154,7 +212,7 @@ export default function CorporateCustomersPage() {
               type="button"
               onClick={() => setViewMode("grid")}
               aria-label="Grid view"
-              className={`p-1.5 rounded-[2px] transition-colors ${
+              className={`p-1.5 rounded-[2px] transition-colors cursor-pointer ${
                 viewMode === "grid"
                   ? "bg-white text-[#123c2c] shadow-xs"
                   : "text-[#69746a] hover:text-[#123c2c]"
@@ -166,7 +224,7 @@ export default function CorporateCustomersPage() {
               type="button"
               onClick={() => setViewMode("table")}
               aria-label="Table view"
-              className={`p-1.5 rounded-[2px] transition-colors ${
+              className={`p-1.5 rounded-[2px] transition-colors cursor-pointer ${
                 viewMode === "table"
                   ? "bg-white text-[#123c2c] shadow-xs"
                   : "text-[#69746a] hover:text-[#123c2c]"
@@ -183,12 +241,12 @@ export default function CorporateCustomersPage() {
             Contract Status:
           </span>
 
-          {["ALL", "Active Daily Contract", "Periodic Orders", "In Review"].map((st) => (
+          {["ALL", "Active Daily Contract", "Periodic Orders", "In Review", "Archived"].map((st) => (
             <button
               key={st}
               type="button"
               onClick={() => setContractFilter(st)}
-              className={`px-3 py-1 font-bold rounded-[2px] transition-all border ${
+              className={`px-3 py-1 font-bold rounded-[2px] transition-all border cursor-pointer ${
                 contractFilter === st
                   ? "bg-[#123c2c] text-[#f4ecd8] border-[#123c2c]"
                   : "bg-[#faf8f1] text-[#526053] border-[#dcd0b5] hover:bg-[#eee7d7]"
@@ -200,9 +258,53 @@ export default function CorporateCustomersPage() {
         </div>
       </div>
 
-      {/* Customer Presentation */}
-      {filteredCustomers.length === 0 ? (
-        /* Empty State */
+      {/* Customer Presentation States */}
+      {isLoading ? (
+        <div className="p-16 text-center space-y-3 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd]">
+          <Loader2 className="w-8 h-8 text-[#8e7139] animate-spin mx-auto" />
+          <p className="text-xs text-[#69746a] m-0">Loading corporate customer profiles from Supabase...</p>
+        </div>
+      ) : error ? (
+        <div className="p-6 rounded-[2px] bg-red-50 border border-red-200 text-red-800 space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+            <span className="font-bold text-sm">{error}</span>
+          </div>
+          <p className="text-xs text-red-700 m-0">
+            Failed to communicate with Supabase. Please check your credentials or network connection.
+          </p>
+          <button
+            type="button"
+            onClick={() => fetchCustomers()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[2px] text-xs font-semibold bg-red-100 hover:bg-red-200 text-red-900 border border-red-300 transition-colors cursor-pointer"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Retry</span>
+          </button>
+        </div>
+      ) : customers.length === 0 ? (
+        /* True Empty State: Zero customers in database */
+        <div className="p-16 text-center space-y-3 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-xs">
+          <div className="w-12 h-12 rounded-full bg-[#f4eee1] border border-[#ddcca6] grid place-items-center text-[#8e7139] mx-auto">
+            <Building2 className="w-6 h-6" />
+          </div>
+          <h3 className="font-serif text-[18px] font-bold text-[#123c2c] m-0">
+            No corporate customers registered yet
+          </h3>
+          <p className="text-xs text-[#69746a] max-w-sm mx-auto m-0">
+            Get started by registering your first industrial catering account, factory plant, or office team.
+          </p>
+          <button
+            type="button"
+            onClick={handleOpenAddModal}
+            className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-[2px] text-xs font-bold text-[#faf8f1] bg-[#123c2c] hover:bg-[#1a533d] border border-[#123c2c] shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4 text-[#c7a45b]" />
+            <span>Add First Corporate Customer</span>
+          </button>
+        </div>
+      ) : filteredCustomers.length === 0 ? (
+        /* Filtered Empty State */
         <div className="p-16 text-center space-y-3 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd]">
           <div className="w-12 h-12 rounded-full bg-[#f4eee1] border border-[#ddcca6] grid place-items-center text-[#8e7139] mx-auto">
             <Building2 className="w-6 h-6" />
@@ -219,7 +321,7 @@ export default function CorporateCustomersPage() {
               setSearchQuery("");
               setContractFilter("ALL");
             }}
-            className="mt-2 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4] transition-colors"
+            className="mt-2 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4] transition-colors cursor-pointer"
           >
             Reset Filters
           </button>
@@ -227,169 +329,235 @@ export default function CorporateCustomersPage() {
       ) : viewMode === "grid" ? (
         /* Grid Cards View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredCustomers.map((cust) => (
-            <div
-              key={cust.id}
-              className="p-6 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] hover:border-[#c9ad70] shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between space-y-4"
-            >
-              <div>
-                {/* Card Header */}
-                <div className="flex items-center justify-between gap-2 mb-2.5">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-[2px] bg-[#c7a45b]/20 text-[#8e7139] border border-[#dcd0b5] uppercase">
-                    {cust.shortCode}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-[2px] border ${
-                      cust.contractStatus === "Active Daily Contract"
-                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                        : "bg-amber-50 text-amber-800 border-amber-200"
-                    }`}
+          {filteredCustomers.map((cust) => {
+            const deliveryAddress =
+              cust.customer_addresses?.find((a) => a.address_type === "delivery" && a.is_default) ||
+              cust.customer_addresses?.find((a) => a.address_type === "delivery");
+            const deliveryLocationText = deliveryAddress
+              ? [deliveryAddress.address_line, deliveryAddress.city].filter(Boolean).join(", ")
+              : "Location unassigned";
+
+            const billingAddress =
+              cust.customer_addresses?.find((a) => a.address_type === "billing" && a.is_default) ||
+              cust.customer_addresses?.find((a) => a.address_type === "billing");
+            const billingAddressText = billingAddress
+              ? [billingAddress.address_line, billingAddress.city].filter(Boolean).join(", ")
+              : "No billing address specified";
+
+            const isContractActive = cust.contract_status === "Active Daily Contract";
+
+            return (
+              <div
+                key={cust.id}
+                className="p-6 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] hover:border-[#c9ad70] shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between space-y-4"
+              >
+                <div>
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-[2px] bg-[#c7a45b]/20 text-[#8e7139] border border-[#dcd0b5] uppercase">
+                      {cust.customer_code}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-[2px] border ${
+                        isContractActive
+                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                          : cust.contract_status === "Periodic Orders"
+                          ? "bg-blue-50 text-blue-800 border-blue-200"
+                          : cust.contract_status === "In Review"
+                          ? "bg-amber-50 text-amber-800 border-amber-200"
+                          : "bg-stone-100 text-stone-700 border-stone-200"
+                      }`}
+                    >
+                      {cust.contract_status}
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-[17px] font-bold text-[#173e2d] leading-snug m-0">
+                    {cust.company_name}
+                  </h3>
+
+                  <div className="mt-2 text-xs space-y-1.5 text-[#516052]">
+                    <div className="flex items-start gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-[#8e7139] shrink-0 mt-0.5" />
+                      <span className="line-clamp-2 leading-relaxed">{billingAddressText}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[11px] text-[#8e7139]">
+                      <span className="font-semibold">Plant Unit:</span>
+                      <strong className="text-[#123c2c]">{deliveryLocationText}</strong>
+                    </div>
+                  </div>
+
+                  {/* Rates & Preset Chip */}
+                  <div className="mt-3.5 pt-3 border-t border-[#f0e9dc] flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-[10px] text-[#8e7139] uppercase font-bold block">
+                        Contract Rate
+                      </span>
+                      <span className="font-bold text-[#123c2c]">
+                        {cust.default_rate !== null && cust.default_rate !== undefined
+                          ? `₹${Number(cust.default_rate).toFixed(2)} / meal`
+                          : "Not configured"}
+                      </span>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="text-[10px] text-[#8e7139] uppercase font-bold block">
+                        Preset
+                      </span>
+                      <span className="font-semibold text-[#17271e]">
+                        {cust.default_preset || "Not configured"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tax IDs */}
+                  <div className="mt-2.5 text-[10.5px] text-[#69746a] bg-[#faf8f1] p-2 rounded-[2px] border border-[#f0e8d9] flex justify-between">
+                    <span>
+                      GST: <strong className="text-[#17271e]">{cust.gstin || "N/A"}</strong>
+                    </span>
+                    <span>
+                      PAN: <strong className="text-[#17271e]">{cust.pan || "N/A"}</strong>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Footer Actions */}
+                <div className="pt-3 border-t border-[#f0e9dc] flex items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenDetails(cust)}
+                      className="p-1.5 rounded-[2px] bg-[#faf7ef] hover:bg-[#eee7d7] text-[#123c2c] border border-[#dcd0b5] transition-colors cursor-pointer"
+                      title="View details"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditModal(cust)}
+                      className="p-1.5 rounded-[2px] bg-[#faf7ef] hover:bg-[#eee7d7] text-[#123c2c] border border-[#dcd0b5] transition-colors cursor-pointer"
+                      title="Edit profile"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <Link
+                    href="/admin/billing"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[2px] font-bold text-xs text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4] border border-[#dcd0b5] transition-colors"
                   >
-                    {cust.contractStatus}
-                  </span>
-                </div>
-
-                <h3 className="font-serif text-[17px] font-bold text-[#173e2d] leading-snug m-0">
-                  {cust.name}
-                </h3>
-
-                <div className="mt-2 text-xs space-y-1.5 text-[#516052]">
-                  <div className="flex items-start gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#8e7139] shrink-0 mt-0.5" />
-                    <span className="line-clamp-2 leading-relaxed">{cust.billingAddress}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-[11px] text-[#8e7139]">
-                    <span className="font-semibold">Plant Unit:</span>
-                    <strong className="text-[#123c2c]">{cust.deliveryLocation}</strong>
-                  </div>
-                </div>
-
-                {/* Rates & Preset Chip */}
-                <div className="mt-3.5 pt-3 border-t border-[#f0e9dc] flex items-center justify-between text-xs">
-                  <div>
-                    <span className="text-[10px] text-[#8e7139] uppercase font-bold block">
-                      Contract Rate
-                    </span>
-                    <span className="font-bold text-[#123c2c]">
-                      ₹{cust.defaultRate.toFixed(2)} / meal
-                    </span>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-[10px] text-[#8e7139] uppercase font-bold block">
-                      Preset
-                    </span>
-                    <span className="font-semibold text-[#17271e]">
-                      {cust.defaultPreset}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Tax IDs */}
-                <div className="mt-2.5 text-[10.5px] text-[#69746a] bg-[#faf8f1] p-2 rounded-[2px] border border-[#f0e8d9] flex justify-between">
-                  <span>GST: <strong className="text-[#17271e]">{cust.gstin}</strong></span>
-                  <span>PAN: <strong className="text-[#17271e]">{cust.pan}</strong></span>
+                    <Receipt className="w-3.5 h-3.5 text-[#8e7139]" />
+                    <span>Start Billing</span>
+                  </Link>
                 </div>
               </div>
-
-              {/* Card Footer Actions */}
-              <div className="pt-3 border-t border-[#f0e9dc] flex items-center justify-between gap-2 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenDetails(cust)}
-                    className="p-1.5 rounded-[2px] bg-[#faf7ef] hover:bg-[#eee7d7] text-[#123c2c] border border-[#dcd0b5] transition-colors"
-                    title="View details"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleOpenEditModal(cust)}
-                    className="p-1.5 rounded-[2px] bg-[#faf7ef] hover:bg-[#eee7d7] text-[#123c2c] border border-[#dcd0b5] transition-colors"
-                    title="Edit profile"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <Link
-                  href="/admin/billing"
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[2px] font-bold text-xs text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4] border border-[#dcd0b5] transition-colors"
-                >
-                  <Receipt className="w-3.5 h-3.5 text-[#8e7139]" />
-                  <span>Start Billing</span>
-                </Link>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         /* Table View */
         <div className="rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-xs overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#faf7ef] text-[#69746a] text-[10px] uppercase font-bold tracking-wider border-b border-[#e5ddcd]">
-              <tr>
-                <th className="py-3 px-4">Company Name</th>
-                <th className="py-3 px-3">Unit</th>
-                <th className="py-3 px-3">GSTIN</th>
-                <th className="py-3 px-3">Contract Status</th>
-                <th className="py-3 px-3">Rate (₹)</th>
-                <th className="py-3 px-3">Preset</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-[#e5ddcd] bg-[#faf8f1] text-[10.5px] font-bold text-[#8e7139] uppercase tracking-wider">
+                <th className="py-3.5 px-4">Customer / Company</th>
+                <th className="py-3.5 px-3">Code</th>
+                <th className="py-3.5 px-3">Delivery Unit</th>
+                <th className="py-3.5 px-3">GSTIN</th>
+                <th className="py-3.5 px-3">Contract Status</th>
+                <th className="py-3.5 px-3">Rate (₹)</th>
+                <th className="py-3.5 px-3">Preset</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f0e9dc]">
-              {filteredCustomers.map((cust) => (
-                <tr key={cust.id} className="hover:bg-[#faf7ef] transition-colors">
-                  <td className="py-3 px-4">
-                    <div className="font-bold text-[#123c2c] text-[13px]">{cust.name}</div>
-                    <div className="text-[11px] text-[#69746a]">{cust.billingAddress}</div>
-                  </td>
-                  <td className="py-3 px-3 font-semibold text-[#17271e]">
-                    {cust.deliveryLocation}
-                  </td>
-                  <td className="py-3 px-3 font-mono text-[11px] text-[#415042]">
-                    {cust.gstin}
-                  </td>
-                  <td className="py-3 px-3">
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-[2px] border ${
-                        cust.contractStatus === "Active Daily Contract"
-                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                          : "bg-amber-50 text-amber-800 border-amber-200"
-                      }`}
-                    >
-                      {cust.contractStatus}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 font-bold text-[#123c2c]">
-                    ₹{cust.defaultRate.toFixed(2)}
-                  </td>
-                  <td className="py-3 px-3 text-[#526053] font-medium">
-                    {cust.defaultPreset}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenDetails(cust)}
-                        className="px-2 py-1 rounded-[2px] text-xs font-semibold text-[#123c2c] bg-[#eee7d7] hover:bg-[#e4dac4]"
+              {filteredCustomers.map((cust) => {
+                const deliveryAddress =
+                  cust.customer_addresses?.find((a) => a.address_type === "delivery" && a.is_default) ||
+                  cust.customer_addresses?.find((a) => a.address_type === "delivery");
+                const deliveryLocationText = deliveryAddress
+                  ? [deliveryAddress.address_line, deliveryAddress.city].filter(Boolean).join(", ")
+                  : "Unassigned";
+
+                const isContractActive = cust.contract_status === "Active Daily Contract";
+
+                return (
+                  <tr
+                    key={cust.id}
+                    onClick={() => handleOpenDetails(cust)}
+                    className="hover:bg-[#faf7ef] transition-colors cursor-pointer"
+                  >
+                    <td className="py-3 px-4 font-bold text-[#17271e]">
+                      {cust.company_name}
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className="font-mono text-[10.5px] font-bold px-1.5 py-0.5 rounded-[2px] bg-[#faf7ef] border border-[#dcd0b5] text-[#8e7139]">
+                        {cust.customer_code}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-[#516052]">
+                      {deliveryLocationText}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-[11px] text-[#69746a]">
+                      {cust.gstin || "—"}
+                    </td>
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-[2px] border ${
+                          isContractActive
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : cust.contract_status === "Periodic Orders"
+                            ? "bg-blue-50 text-blue-800 border-blue-200"
+                            : cust.contract_status === "In Review"
+                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                            : "bg-stone-100 text-stone-700 border-stone-200"
+                        }`}
                       >
-                        Details
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEditModal(cust)}
-                        className="p-1 rounded-[2px] text-[#69746a] hover:text-[#123c2c]"
+                        {cust.contract_status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 font-semibold text-[#123c2c]">
+                      {cust.default_rate !== null && cust.default_rate !== undefined
+                        ? `₹${Number(cust.default_rate).toFixed(2)}`
+                        : "Not configured"}
+                    </td>
+                    <td className="py-3 px-3 text-[#516052]">
+                      {cust.default_preset || "Not configured"}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <div
+                        className="inline-flex items-center gap-1.5"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <button
+                          type="button"
+                          onClick={() => handleOpenDetails(cust)}
+                          className="p-1 rounded-[2px] hover:bg-[#eee7d7] text-[#123c2c] transition-colors cursor-pointer"
+                          title="View"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-[#8e7139]" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditModal(cust)}
+                          className="p-1 rounded-[2px] hover:bg-[#eee7d7] text-[#123c2c] transition-colors cursor-pointer"
+                          title="Edit"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 text-[#8e7139]" />
+                        </button>
+                        <Link
+                          href="/admin/billing"
+                          className="p-1 rounded-[2px] hover:bg-[#eee7d7] text-[#123c2c] transition-colors"
+                          title="Bill"
+                        >
+                          <Receipt className="w-3.5 h-3.5 text-[#8e7139]" />
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -400,7 +568,7 @@ export default function CorporateCustomersPage() {
         customer={activeCustomer}
         isOpen={formModalOpen}
         onClose={() => setFormModalOpen(false)}
-        onSave={handleSaveCustomer}
+        onSuccess={handleCustomerSaved}
       />
 
       {/* Customer Details Modal */}
@@ -408,7 +576,10 @@ export default function CorporateCustomersPage() {
         customer={activeCustomer}
         isOpen={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
-        onEdit={handleOpenEditModal}
+        onEdit={(cust) => {
+          setDetailsModalOpen(false);
+          handleOpenEditModal(cust);
+        }}
       />
     </div>
   );

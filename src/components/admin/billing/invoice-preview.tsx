@@ -10,6 +10,8 @@ import {
   Building2,
   MapPin,
   Sparkles,
+  ShieldCheck,
+  Loader2,
 } from "lucide-react";
 import { CorporateCustomer } from "@/types/admin";
 import { DailyBillingEntry, BillingKpiSummary, BillingRateSource } from "@/types/billing";
@@ -31,6 +33,9 @@ interface InvoicePreviewProps {
   onBackToEdit: () => void;
   backButtonLabel?: string;
   statusBadge?: React.ReactNode;
+  onIssueInvoice?: () => void;
+  isIssuing?: boolean;
+  isIssued?: boolean;
 }
 
 export function InvoicePreview({
@@ -49,6 +54,9 @@ export function InvoicePreview({
   onBackToEdit,
   backButtonLabel = "Back to Daily Ledger",
   statusBadge,
+  onIssueInvoice,
+  isIssuing = false,
+  isIssued = false,
 }: InvoicePreviewProps) {
   const [layoutMode, setLayoutMode] = React.useState<"AUTO" | "1-PAGE" | "2-PAGE">("AUTO");
 
@@ -81,7 +89,7 @@ export function InvoicePreview({
           PARTICULARS
         </th>
         <th className="w-28 px-3 py-1.5 text-right font-bold text-black">
-          AMOUNT (₹)
+          AMOUNT (â‚¹)
         </th>
       </tr>
     </thead>
@@ -160,7 +168,7 @@ export function InvoicePreview({
             <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
               <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
               <span>
-                Total: {formatINR(kpis.totalAmount)} ({kpis.totalBillQty.toLocaleString("en-IN")} meals) • Rate: ₹{rate.toFixed(2)} / meal
+                Total: {formatINR(kpis.totalAmount)} ({kpis.totalBillQty.toLocaleString("en-IN")} meals) â€¢ Rate: â‚¹{rate.toFixed(2)} / meal
               </span>
             </p>
           </div>
@@ -214,6 +222,28 @@ export function InvoicePreview({
             <Printer className="h-3.5 w-3.5" />
             Print Invoice
           </button>
+
+          {onIssueInvoice && !isIssued && (
+            <button
+              type="button"
+              onClick={onIssueInvoice}
+              disabled={isIssuing}
+              className="inline-flex items-center gap-1.5 rounded-[2px] bg-[#c7a45b] hover:bg-[#b59249] disabled:opacity-50 text-[#123c2c] px-4 py-2 text-xs font-extrabold shadow-sm transition-colors cursor-pointer"
+              title="Issue official invoice, assign sequence number, and lock against changes"
+            >
+              {isIssuing ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>Issuing...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>Issue &amp; Finalize Invoice</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -253,7 +283,7 @@ export function InvoicePreview({
 
                 {/* Title Banner */}
                 <div className="bg-[#f1f1f1] border-y-[1.5px] border-black py-1.5 px-3 text-center font-bold text-[13px] tracking-wider uppercase text-black">
-                  TAX INVOICE / MONTHLY CATERING BILL
+                  INVOICE / MONTHLY CATERING BILL
                 </div>
 
                 {/* Info Grid (Billed To & Invoice Metadata) */}
@@ -272,11 +302,11 @@ export function InvoicePreview({
                     <div className="pt-1 flex flex-wrap gap-x-4 text-[11px]">
                       <div>
                         <span className="font-bold">GSTIN: </span>
-                        <span className="font-mono">{customer.gstin || "—"}</span>
+                        <span className="font-mono">{customer.gstin || "â€”"}</span>
                       </div>
                       <div>
                         <span className="font-bold">PAN: </span>
-                        <span className="font-mono">{customer.pan || "—"}</span>
+                        <span className="font-mono">{customer.pan || "â€”"}</span>
                       </div>
                     </div>
                   </div>
@@ -409,9 +439,9 @@ export function InvoicePreview({
                       <span className="font-serif font-black uppercase tracking-wider text-[#0b241a] text-xs">
                         A.S. Bhavatarini Catering Service
                       </span>
-                      <span className="text-neutral-400 mx-2">•</span>
+                      <span className="text-neutral-400 mx-2">â€¢</span>
                       <span className="font-semibold text-neutral-800">
-                        TAX INVOICE CONTINUATION
+                        INVOICE CONTINUATION
                       </span>
                     </div>
                     <div className="flex items-center gap-3 font-mono text-[10.5px]">

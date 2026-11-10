@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { siteConfig } from "@/lib/config/site";
 import {
   CheckCircle2,
   AlertCircle,
-  Info,
   ExternalLink,
   MapPin,
   Phone,
+  Loader2,
 } from "lucide-react";
 
 interface ContactFormData {
@@ -23,6 +23,12 @@ interface ContactFormData {
   eventDate: string;
   location: string;
   details: string;
+}
+
+interface ServerSubmissionResult {
+  success: boolean;
+  enquiryNumber?: string;
+  error?: string;
 }
 
 export function ContactSection() {
@@ -40,66 +46,21 @@ export function ContactSection() {
     details: "",
   });
 
+  const [websiteHoneypot, setWebsiteHoneypot] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [devStatusModal, setDevStatusModal] = useState<{
-    open: boolean;
-    data?: ContactFormData;
-  }>({ open: false });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverResult, setServerResult] = useState<ServerSubmissionResult | null>(null);
 
   const submitBtnRef = useRef<HTMLButtonElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
-  const closeBtnRef = useRef<HTMLButtonElement>(null);
-
-  const closeModal = () => {
-    setDevStatusModal({ open: false });
-    submitBtnRef.current?.focus();
-  };
-
-  useEffect(() => {
-    if (!devStatusModal.open) return;
-
-    const timer = setTimeout(() => {
-      closeBtnRef.current?.focus();
-    }, 50);
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === "Esc") {
-        e.preventDefault();
-        closeModal();
-      } else if (e.key === "Tab" && modalRef.current) {
-        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [devStatusModal.open]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
+    const cleanName = formData.name.trim();
+    if (!cleanName) {
       newErrors.name = "Please enter your name.";
+    } else if (cleanName.length < 2) {
+      newErrors.name = "Name must be at least 2 characters.";
     }
 
     const cleanPhone = formData.phone.trim();
@@ -117,23 +78,91 @@ export function ContactSection() {
       newErrors.email = "Please enter a valid email address or leave blank.";
     }
 
-    if (!formData.location.trim()) {
+    if (formData.eventDate) {
+      const todayIST = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+      if (formData.eventDate < todayIST) {
+        newErrors.eventDate = "Event date cannot be in the past.";
+      }
+    }
+
+    const cleanLocation = formData.location.trim();
+    if (!cleanLocation) {
       newErrors.location = "Please enter your location or event area in Coimbatore.";
+    } else if (cleanLocation.length < 2) {
+      newErrors.location = "Location must be at least 2 characters.";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
       return;
     }
 
-    // Show clear development verification message without fake API claims
-    setDevStatusModal({ open: true, data: { ...formData } });
+    setIsSubmitting(true);
+    setServerResult(null);
+
+    try {
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          website: websiteHoneypot,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setServerResult({
+          success: true,
+          enquiryNumber: data.enquiryNumber,
+        });
+
+        // Reset form inputs after successful persistence
+        setFormData({
+          name: "",
+          phone: "",
+          email: "",
+          kind: "Corporate office",
+          kindOther: "",
+          food: "Full meals",
+          foodOther: "",
+          qty: "",
+          eventDate: "",
+          location: "",
+          details: "",
+        });
+        setWebsiteHoneypot("");
+      } else {
+        setServerResult({
+          success: false,
+          error:
+            data.error ||
+            "Unable to record your enquiry. Please verify your details or reach our coordinator via WhatsApp.",
+        });
+      }
+    } catch {
+      setServerResult({
+        success: false,
+        error:
+          "Network connection failed. Please check your internet connection or reach our team directly via WhatsApp.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const buildWhatsAppPreviewUrl = () => {
@@ -175,7 +204,7 @@ export function ContactSection() {
             05 / GET IN TOUCH
           </span>
           <h2 className="font-serif text-[clamp(34px,4vw,48px)] max-sm:text-3xl leading-[1.1] tracking-[-0.8px] text-brand-green font-semibold m-0">
-            Let’s Plan Your Catering
+            Let&apos;s Plan Your Catering
           </h2>
           <p className="text-[15px] max-sm:text-[13px] leading-[1.8] text-brand-muted mt-3 mb-0">
             Share a few details and we&apos;ll get back to you with custom catering arrangements.
@@ -207,6 +236,60 @@ export function ContactSection() {
                 Please complete the details below. We review every requirement carefully before proposing menu options.
               </p>
             </div>
+
+            {/* Honeypot field for bot spam defense (hidden from human visitors) */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={websiteHoneypot}
+              onChange={(e) => setWebsiteHoneypot(e.target.value)}
+              className="absolute -top-9999px -left-9999px opacity-0 pointer-events-none h-0 w-0"
+              aria-hidden="true"
+            />
+
+            {/* Truth-in-UI Submission Feedback Banners */}
+            {serverResult?.success && (
+              <div
+                role="alert"
+                aria-live="polite"
+                className="mb-6 p-5 sm:p-6 rounded-[2px] bg-[#f2f7f3] border border-[#b6d7bd] text-[#123c2c] space-y-3"
+              >
+                <div className="flex items-start gap-3.5">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-700 shrink-0 mt-0.5" />
+                  <div className="space-y-1.5">
+                    <h4 className="font-serif text-lg font-bold text-brand-green m-0">
+                      Enquiry Received Successfully!
+                    </h4>
+                    <p className="text-[13px] text-[#2c4735] leading-relaxed m-0">
+                      Thank you for contacting Bhavatarini Catering Service. Your requirement has been saved and our catering coordinator will review it and get in touch with you shortly.
+                    </p>
+                    {serverResult.enquiryNumber && (
+                      <div className="pt-2 flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-bold text-[#616c61] uppercase tracking-wider">
+                          Enquiry Reference:
+                        </span>
+                        <span className="inline-flex items-center px-2.5 py-1 bg-white border border-[#b6d7bd] rounded-[2px] text-xs font-mono font-bold text-brand-green shadow-xs">
+                          {serverResult.enquiryNumber}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {serverResult && !serverResult.success && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="mb-6 p-4 rounded-[2px] bg-red-50 border border-red-200 text-red-800 text-[13px] flex items-start gap-2.5"
+              >
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{serverResult.error}</span>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-sm:gap-4 items-start">
               {/* Field 1: Name (Required) */}
@@ -480,7 +563,7 @@ export function ContactSection() {
                 )}
               </div>
 
-              {/* Field 7: Quantity (Optional, Editable Text Input) */}
+              {/* Field 7: Quantity (Optional, Editable Text Input with Approved Fallback) */}
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="qty"
@@ -521,8 +604,19 @@ export function ContactSection() {
                   onChange={(e) =>
                     setFormData({ ...formData, eventDate: e.target.value })
                   }
-                  className="w-full h-[42px] bg-[#faf7ef] border border-[#dcd3bf] px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20"
+                  className={`w-full h-[42px] bg-[#faf7ef] border ${
+                    errors.eventDate ? "border-red-500" : "border-[#dcd3bf]"
+                  } px-3.5 py-2.5 text-[13px] text-[#17271e] rounded-[2px] outline-none transition-all focus:bg-white focus:border-[#c7a45b] focus:ring-2 focus:ring-[#c7a45b]/20`}
                 />
+                {errors.eventDate && (
+                  <span
+                    id="eventDate-error"
+                    className="text-[11px] text-red-600 flex items-center gap-1 mt-0.5"
+                  >
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    {errors.eventDate}
+                  </span>
+                )}
               </div>
 
               {/* Field 9: Additional Requirements (Optional, Textarea) */}
@@ -550,22 +644,34 @@ export function ContactSection() {
             {/* Submit Action */}
             <div className="mt-8 pt-4 border-t border-[#e5ddcd] flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-[11px] text-brand-muted m-0 text-center sm:text-left">
-                Direct coordinator review · Clear proposal · No obligations
+                Direct coordinator review • Clear proposal • No obligations
               </p>
 
               <button
                 ref={submitBtnRef}
                 type="submit"
-                className="w-full sm:w-auto h-[48px] px-8 py-3 rounded-[2px] text-[13px] font-bold tracking-[0.5px] uppercase text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold cursor-pointer inline-flex items-center justify-center relative overflow-hidden group/btn"
+                disabled={isSubmitting}
+                className={`w-full sm:w-auto h-[48px] px-8 py-3 rounded-[2px] text-[13px] font-bold tracking-[0.5px] uppercase text-[#15261d] border border-[#e5d19a] shadow-md transition-all duration-300 hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold cursor-pointer inline-flex items-center justify-center relative overflow-hidden group/btn ${
+                  isSubmitting ? "opacity-75 cursor-wait" : ""
+                }`}
                 style={{
                   background: "linear-gradient(135deg, #d4ba78, #b89347)",
                 }}
               >
-                <span className="relative z-10 inline-flex items-center gap-1.5">
-                  Submit Enquiry
-                  <span className="inline-block transition-transform duration-200 group-hover/btn:translate-x-1">
-                    →
-                  </span>
+                <span className="relative z-10 inline-flex items-center gap-2">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-[#15261d]" />
+                      <span>Submitting Enquiry...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit Enquiry</span>
+                      <span className="inline-block transition-transform duration-200 group-hover/btn:translate-x-1">
+                        →
+                      </span>
+                    </>
+                  )}
                 </span>
                 <span
                   aria-hidden="true"
@@ -598,13 +704,13 @@ export function ContactSection() {
                 <span className="text-[10px] font-bold text-[#8e7139] uppercase tracking-wider mb-0.5">
                   Location
                 </span>
-                <span className="text-[13.5px] font-medium text-[#17271e]">
+                <span className="text-[13.5px] font-medium text-brand-ink">
                   {siteConfig.location}
                 </span>
               </div>
             </div>
 
-            {/* Direct Phone Card (Number: 9944458459, Clickable tel:9944458459) */}
+            {/* Direct Phone Card */}
             <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#c7a45b]/60 hover:shadow-md cursor-default">
               <div className="w-11 h-11 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#8e7139]">
                 <Phone className="w-5 h-5" />
@@ -614,15 +720,15 @@ export function ContactSection() {
                   Direct Phone
                 </span>
                 <a
-                  href="tel:9944458459"
+                  href={`tel:${siteConfig.contact.phone.replace(/[^0-9+]/g, "")}`}
                   className="text-[13.5px] font-medium text-brand-green hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-gold rounded-sm"
                 >
-                  +91 99444 58459
+                  {siteConfig.contact.phone || "+91 99444 58459"}
                 </a>
               </div>
             </div>
 
-            {/* WhatsApp Card (Number: 9944458459, Clickable https://wa.me/919944458459) */}
+            {/* WhatsApp Card */}
             <div className="p-5 rounded-[2px] bg-[#fffefa] border border-[#e5ddcd] shadow-[0_4px_16px_rgba(24,52,35,0.03)] flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#c7a45b]/60 hover:shadow-md cursor-default">
               <div className="w-11 h-11 rounded-full bg-[#f4eee1] grid place-items-center shrink-0 text-[#128c7e]">
                 {/* Authentic WhatsApp Brand SVG Icon */}
@@ -651,86 +757,6 @@ export function ContactSection() {
           </div>
         </div>
       </div>
-
-      {/* Phase 2 Development Verification Modal */}
-      {devStatusModal.open && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeModal();
-          }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-        >
-          <div
-            ref={modalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="dev-modal-title"
-            className="bg-[#fffefa] border border-[#e5ddcd] rounded-[2px] max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center gap-2 text-emerald-800">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              <h4 id="dev-modal-title" className="font-serif text-lg font-bold">
-                Frontend Validation Passed
-              </h4>
-            </div>
-
-            <div className="bg-brand-cream p-4 rounded text-xs space-y-2 border border-brand-line font-sans">
-              <p className="font-semibold text-brand-green">
-                Captured Enquiry Payload:
-              </p>
-              <ul className="space-y-1 text-brand-muted">
-                <li><strong>Name:</strong> {devStatusModal.data?.name}</li>
-                <li><strong>Mobile:</strong> {devStatusModal.data?.phone}</li>
-                <li><strong>Email:</strong> {devStatusModal.data?.email || "Not specified"}</li>
-                <li><strong>Location / Area:</strong> {devStatusModal.data?.location}</li>
-                <li>
-                  <strong>Requirement:</strong>{" "}
-                  {devStatusModal.data?.kind === "Others" && devStatusModal.data?.kindOther
-                    ? `Others (${devStatusModal.data.kindOther})`
-                    : devStatusModal.data?.kind}
-                </li>
-                <li>
-                  <strong>Food:</strong>{" "}
-                  {devStatusModal.data?.food === "Others" && devStatusModal.data?.foodOther
-                    ? `Others (${devStatusModal.data.foodOther})`
-                    : devStatusModal.data?.food}
-                </li>
-                <li><strong>Quantity:</strong> {devStatusModal.data?.qty || "Not specified"}</li>
-                <li><strong>Event Date:</strong> {devStatusModal.data?.eventDate || "Not specified"}</li>
-                <li><strong>Additional Requirements:</strong> {devStatusModal.data?.details || "Not specified"}</li>
-              </ul>
-            </div>
-
-            <div className="flex items-start gap-2 text-[11px] text-amber-800 bg-amber-50 p-3 rounded border border-amber-200">
-              <Info className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>
-                <strong>Phase 2 Status:</strong> Form validation is verified. In Phase 3, this will execute a server action to securely store the record in Supabase PostgreSQL and send email notifications via Resend.
-              </span>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <a
-                href={buildWhatsAppPreviewUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-[2px] text-brand-green bg-[#eee7d7] hover:bg-[#e4dac4] transition-colors"
-              >
-                <span>Test WhatsApp Handoff</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-
-              <button
-                ref={closeBtnRef}
-                type="button"
-                onClick={closeModal}
-                className="px-4 py-2 text-xs font-bold rounded-[2px] text-white bg-brand-green hover:bg-brand-green2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

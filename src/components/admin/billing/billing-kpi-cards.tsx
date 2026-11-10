@@ -70,17 +70,17 @@ export function BillingKpiCards({ kpis, monthName, year }: BillingKpiCardsProps)
           </div>
         </div>
 
-        {/* Card 4: Total Amount (₹) - Highlighted in Elegant Forest Green */}
+        {/* Card 4: Total Amount (â‚¹) - Highlighted in Elegant Forest Green */}
         <div className="rounded-[2px] border border-[#0d281e] bg-[#123c2c] p-4 shadow-sm flex items-start justify-between min-h-[104px] text-[#faf8f1]">
           <div>
             <p className="text-[11px] font-bold text-[#c7a45b] uppercase tracking-wider m-0">
-              Total Amount (₹)
+              Total Amount (â‚¹)
             </p>
             <p className="text-2xl md:text-3xl font-serif font-bold text-[#ffffff] mt-1.5 m-0">
               {formatINR(kpis.totalAmount)}
             </p>
             <p className="text-xs text-[#c8d8ce] mt-1 m-0">
-              Pre-tax billable amount
+              Total billable catering amount
             </p>
           </div>
           <div className="w-8 h-8 rounded-[2px] bg-[#1a4a38] border border-[#c7a45b]/40 grid place-items-center text-[#c7a45b] shrink-0">

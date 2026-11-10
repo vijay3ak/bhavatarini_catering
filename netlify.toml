@@ -1,0 +1,22 @@
+# ==============================================================================
+# Bhavatarini Catering Service — Netlify Production Configuration
+# File: netlify.toml
+# Platform: Next.js 15 (App Router) on Netlify OpenNext Runtime
+# ==============================================================================
+
+[build]
+  command = "npm run build"
+  # publish directory is intentionally omitted so Netlify's Next.js OpenNext
+  # runtime automatically discovers and provisions .next build outputs.
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--prefer-offline --no-audit"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Scheduled function configuration: runs outbox notification worker every 5 minutes
+[functions."process-outbox-cron"]
+  schedule = "*/5 * * * *"

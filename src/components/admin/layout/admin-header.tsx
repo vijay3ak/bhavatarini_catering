@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ExternalLink } from "lucide-react";
+import { Menu, ExternalLink, LogOut, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 interface AdminHeaderProps {
   onToggleMobileMenu: () => void;
@@ -42,6 +43,19 @@ const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
 
 export function AdminHeader({ onToggleMobileMenu }: AdminHeaderProps) {
   const pathname = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Offline / unconfigured environment fallback
+    } finally {
+      window.location.href = "/admin/login";
+    }
+  };
 
   const currentMeta = PAGE_TITLES[pathname] || {
     title: "Admin Dashboard",
@@ -68,11 +82,11 @@ export function AdminHeader({ onToggleMobileMenu }: AdminHeaderProps) {
         </div>
       </div>
 
-      {/* Right: Mode Badge & Public Site Link */}
-      <div className="flex items-center gap-3 shrink-0">
+      {/* Right: Mode Badge, Public Site Link & Sign Out */}
+      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
         <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[2px] bg-[#faf7ef] border border-[#dcd0b5] text-[#8e7139] text-[11px] font-semibold tracking-wider uppercase select-none">
           <span className="w-1.5 h-1.5 rounded-full bg-[#c7a45b]" />
-          <span>Phase 1 Foundation</span>
+          <span>Operations Portal</span>
         </span>
 
         <Link
@@ -84,6 +98,21 @@ export function AdminHeader({ onToggleMobileMenu }: AdminHeaderProps) {
           <span className="hidden md:inline">View Website</span>
           <ExternalLink className="w-3.5 h-3.5 text-[#8e7139]" />
         </Link>
+
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={isLoggingOut}
+          aria-label="Sign out of operations portal"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-semibold text-[#8e7139] hover:text-[#123c2c] bg-[#faf7ef] hover:bg-[#eee7d7] border border-[#dcd0b5] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c7a45b] disabled:opacity-60 cursor-pointer"
+        >
+          {isLoggingOut ? (
+            <Loader2 className="w-3.5 h-3.5 text-[#8e7139] animate-spin" />
+          ) : (
+            <LogOut className="w-3.5 h-3.5 text-[#8e7139]" />
+          )}
+          <span className="hidden sm:inline">{isLoggingOut ? "Signing out..." : "Sign Out"}</span>
+        </button>
       </div>
     </header>
   );

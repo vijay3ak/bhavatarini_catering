@@ -1,22 +1,20 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Inbox,
   Search,
   Phone,
-  Mail,
   Calendar,
   Eye,
   RotateCcw,
-  Sparkles,
-  Users,
   CheckCircle2,
   Clock,
-  ArrowRight,
-  Filter,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
-import { MOCK_ENQUIRIES } from "@/lib/data/mock-admin-data";
+import { createClient } from "@/lib/supabase/client";
 import { EnquiryRecord, EnquiryStatus } from "@/types/enquiry";
 import { EnquiryDetailsDrawer } from "@/components/admin/enquiries/enquiry-details-drawer";
 
@@ -41,12 +39,61 @@ const STATUS_CONFIG: Record<
 };
 
 export default function EnquiriesManagementPage() {
-  const [enquiries, setEnquiries] = useState<EnquiryRecord[]>(MOCK_ENQUIRIES);
+  const [enquiries, setEnquiries] = useState<EnquiryRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<FilterStatusOption>("ALL");
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [selectedEnquiry, setSelectedEnquiry] = useState<EnquiryRecord | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Fetch enquiries from Supabase PostgreSQL using authenticated PostgREST Data API
+  const fetchEnquiries = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+
+    try {
+      const supabase = createClient();
+      const { data, error } = await (supabase.from("enquiries") as any)
+        .select(`
+          id,
+          enquiry_number,
+          name,
+          phone,
+          email,
+          organisation,
+          requirement_type,
+          food_preference,
+          quantity_range,
+          event_date,
+          location,
+          details,
+          status,
+          whatsapp_initiated,
+          created_at,
+          updated_at
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Failed to load enquiries from Supabase:", error);
+        setLoadError("Unable to retrieve enquiries. Please ensure your session is active and try again.");
+      } else {
+        setEnquiries((data as EnquiryRecord[]) || []);
+      }
+    } catch (err: unknown) {
+      console.error("Enquiry fetch error:", err);
+      setLoadError("Connection error while communicating with Supabase Data API.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEnquiries();
+  }, [fetchEnquiries]);
 
   // Extract unique requirement types for filter dropdown
   const uniqueTypes = useMemo(() => {
@@ -60,12 +107,13 @@ export default function EnquiriesManagementPage() {
   // Filtered enquiries based on search, status and requirement type
   const filteredEnquiries = useMemo(() => {
     return enquiries.filter((enq) => {
-      // 1. Text search
+      // 1. Text search across name, phone, enquiry_number, email, organisation, location
       const q = searchQuery.toLowerCase().trim();
       const matchSearch =
         !q ||
         enq.name.toLowerCase().includes(q) ||
         enq.phone.includes(q) ||
+        (enq.enquiry_number && enq.enquiry_number.toLowerCase().includes(q)) ||
         (enq.email && enq.email.toLowerCase().includes(q)) ||
         (enq.organisation && enq.organisation.toLowerCase().includes(q)) ||
         enq.location.toLowerCase().includes(q);
@@ -116,7 +164,22 @@ export default function EnquiriesManagementPage() {
     setDrawerOpen(true);
   };
 
-  const handleStatusChange = (id: string, newStatus: EnquiryStatus) => {
+  // Status update executed via authenticated Supabase Data API
+  const handleStatusChange = async (id: string, newStatus: EnquiryStatus) => {
+    const supabase = createClient();
+    const { error } = await (supabase.from("enquiries") as any)
+      .update({
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Status update error on Supabase:", error);
+      throw new Error(error.message || "Failed to update status.");
+    }
+
+    // Reflect status change in state
     setEnquiries((prev) =>
       prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
     );
@@ -152,6 +215,16 @@ export default function EnquiriesManagementPage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={fetchEnquiries}
+            disabled={isLoading}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] bg-[#ffffff] border border-[#dcd0b5] text-[#123c2c] hover:bg-[#faf7ef] text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            title="Refresh from Supabase"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-[#8e7139] ${isLoading ? "animate-spin" : ""}`} />
+            <span>Refresh</span>
+          </button>
           <span className="text-[11px] font-bold px-3 py-1.5 rounded-[2px] bg-[#ffffff] border border-[#dcd0b5] text-[#69746a] shadow-xs">
             Total Leads: <strong className="text-[#123c2c] font-bold">{enquiries.length}</strong>
           </span>
@@ -175,7 +248,7 @@ export default function EnquiriesManagementPage() {
               {counts.all}
             </div>
             <span className="text-[11px] text-[#69746a] block mt-1.5 font-medium">
-              Registered website inquiries
+              Registered inquiries in Supabase
             </span>
           </div>
         </div>
@@ -251,7 +324,7 @@ export default function EnquiriesManagementPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by client name, phone, organisation, requirement or location..."
+              placeholder="Search by client name, phone, enquiry ref, organisation or location..."
               className="w-full h-9 pl-9 pr-8 rounded-[2px] bg-[#faf8f1] border border-[#dcd0b5] text-xs text-[#17271e] focus:bg-white focus:border-[#c7a45b] focus:ring-1 focus:ring-[#c7a45b] outline-none"
             />
             {searchQuery && (
@@ -302,7 +375,7 @@ export default function EnquiriesManagementPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("ALL")}
-            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border ${
+            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border cursor-pointer ${
               statusFilter === "ALL"
                 ? "bg-[#123c2c] text-[#faf8f1] border-[#123c2c] shadow-xs"
                 : "bg-[#faf8f1] text-[#526053] border-[#dcd0b5] hover:bg-[#eee7d7]"
@@ -314,7 +387,7 @@ export default function EnquiriesManagementPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("NEW")}
-            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border ${
+            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border cursor-pointer ${
               statusFilter === "NEW"
                 ? "bg-amber-800 text-amber-50 border-amber-800 shadow-xs"
                 : "bg-amber-50/70 text-amber-900 border-amber-200 hover:bg-amber-100"
@@ -326,7 +399,7 @@ export default function EnquiriesManagementPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("CONTACTED")}
-            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border ${
+            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border cursor-pointer ${
               statusFilter === "CONTACTED"
                 ? "bg-blue-800 text-blue-50 border-blue-800 shadow-xs"
                 : "bg-blue-50/70 text-blue-900 border-blue-200 hover:bg-blue-100"
@@ -338,7 +411,7 @@ export default function EnquiriesManagementPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("QUOTE_SENT")}
-            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border ${
+            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border cursor-pointer ${
               statusFilter === "QUOTE_SENT"
                 ? "bg-purple-800 text-purple-50 border-purple-800 shadow-xs"
                 : "bg-purple-50/70 text-purple-900 border-purple-200 hover:bg-purple-100"
@@ -350,7 +423,7 @@ export default function EnquiriesManagementPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("CONFIRMED")}
-            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border ${
+            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border cursor-pointer ${
               statusFilter === "CONFIRMED"
                 ? "bg-emerald-800 text-emerald-50 border-emerald-800 shadow-xs"
                 : "bg-emerald-50/70 text-emerald-900 border-emerald-200 hover:bg-emerald-100"
@@ -362,7 +435,7 @@ export default function EnquiriesManagementPage() {
           <button
             type="button"
             onClick={() => setStatusFilter("CLOSED")}
-            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border ${
+            className={`px-3 py-1 text-xs font-bold rounded-[2px] transition-all border cursor-pointer ${
               statusFilter === "CLOSED"
                 ? "bg-stone-800 text-stone-50 border-stone-800 shadow-xs"
                 : "bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200"
@@ -375,29 +448,65 @@ export default function EnquiriesManagementPage() {
 
       {/* 3.4 Enquiry Records Table */}
       <div className="rounded-[2px] bg-[#ffffff] border border-[#e5ddcd] shadow-xs overflow-hidden">
-        {filteredEnquiries.length === 0 ? (
-          /* 3.7 Empty State */
+        {isLoading ? (
+          /* Loading State */
+          <div className="py-20 px-4 text-center space-y-3">
+            <Loader2 className="w-8 h-8 animate-spin text-[#8e7139] mx-auto" />
+            <h3 className="font-serif text-[17px] font-bold text-[#123c2c] m-0">
+              Connecting to Supabase...
+            </h3>
+            <p className="text-xs text-[#5c685e] m-0">
+              Loading live catering enquiries from PostgreSQL database.
+            </p>
+          </div>
+        ) : loadError ? (
+          /* Error State */
+          <div className="py-16 px-4 text-center space-y-3">
+            <AlertCircle className="w-8 h-8 text-red-600 mx-auto" />
+            <h3 className="font-serif text-[18px] font-bold text-red-900 m-0">
+              Failed to load enquiries
+            </h3>
+            <p className="text-xs text-[#5c685e] max-w-sm mx-auto m-0 leading-relaxed">
+              {loadError}
+            </p>
+            <button
+              type="button"
+              onClick={fetchEnquiries}
+              className="mt-2 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-[2px] text-xs font-bold text-white bg-[#123c2c] hover:bg-[#1a533d] transition-colors cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Retry Query</span>
+            </button>
+          </div>
+        ) : filteredEnquiries.length === 0 ? (
+          /* Empty State */
           <div className="py-16 px-4 text-center space-y-3">
             <div className="w-12 h-12 rounded-[2px] bg-[#faf7ef] border border-[#dcd0b5] grid place-items-center text-[#8e7139] mx-auto">
               <Inbox className="w-6 h-6" />
             </div>
             <h3 className="font-serif text-[18px] font-bold text-[#123c2c] m-0">
-              No matching enquiries found
+              {enquiries.length === 0
+                ? "No catering enquiries recorded yet"
+                : "No matching enquiries found"}
             </h3>
             <p className="text-xs text-[#5c685e] max-w-sm mx-auto m-0 leading-relaxed">
-              No catering inquiries match your active keywords or filters. Try clearing your search terms or resetting the filter options.
+              {enquiries.length === 0
+                ? "New enquiries submitted through the public website will appear here automatically."
+                : "No catering inquiries match your active search terms or filters. Try resetting your filters."}
             </p>
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="mt-2 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#eee7d7] border border-[#dcd0b5] transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
-              <span>Reset Filters</span>
-            </button>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="mt-2 inline-flex items-center gap-1.5 h-8 px-3.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#eee7d7] border border-[#dcd0b5] transition-colors cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
+                <span>Reset Filters</span>
+              </button>
+            )}
           </div>
         ) : (
-          /* Data Table */
+          /* Live Data Table */
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs min-w-[760px]">
               <thead className="bg-[#f4eee1] text-[#69746a] text-[10px] uppercase font-bold tracking-wider border-b border-[#e5ddcd]">
@@ -422,10 +531,15 @@ export default function EnquiriesManagementPage() {
                       className="hover:bg-[#faf7ef] cursor-pointer transition-colors"
                     >
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-[#123c2c] text-[13px]">
-                          {enq.name}
+                        <div className="font-bold text-[#123c2c] text-[13px] flex items-center gap-1.5 flex-wrap">
+                          <span>{enq.name}</span>
+                          {enq.enquiry_number && (
+                            <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 bg-[#f4eee1] text-[#8e7139] rounded-[2px] border border-[#dcd0b5]">
+                              {enq.enquiry_number}
+                            </span>
+                          )}
                         </div>
-                        <div className="text-[11px] text-[#69746a]">
+                        <div className="text-[11px] text-[#69746a] mt-0.5">
                           {enq.organisation || enq.location}
                         </div>
                       </td>
@@ -450,7 +564,7 @@ export default function EnquiriesManagementPage() {
                       </td>
 
                       <td className="py-3.5 px-3 text-[#17271e] font-semibold whitespace-nowrap">
-                        {enq.quantity || enq.quantity_range || "N/A"}
+                        {enq.quantity || enq.quantity_range || "To be confirmed"}
                       </td>
 
                       <td className="py-3.5 px-3 text-[#69746a] whitespace-nowrap">
@@ -483,7 +597,7 @@ export default function EnquiriesManagementPage() {
                             e.stopPropagation();
                             handleOpenDetails(enq);
                           }}
-                          className="inline-flex items-center gap-1 h-7 px-2.5 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#eee7d7] border border-[#dcd0b5] rounded-[2px] transition-colors"
+                          className="inline-flex items-center gap-1 h-7 px-2.5 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#eee7d7] border border-[#dcd0b5] rounded-[2px] transition-colors cursor-pointer"
                         >
                           <Eye className="w-3 h-3 text-[#8e7139]" />
                           <span>Inspect</span>

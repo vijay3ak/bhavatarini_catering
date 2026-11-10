@@ -2,25 +2,26 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
-import { CorporateCustomer } from "@/types/admin";
+import { CustomerRecord } from "@/types/admin";
 import {
   X,
   Building2,
   MapPin,
-  FileText,
   DollarSign,
   Receipt,
   Edit2,
-  Calendar,
   AlertCircle,
   Tag,
+  Phone,
+  Mail,
+  User,
 } from "lucide-react";
 
 interface CustomerDetailsModalProps {
-  customer: CorporateCustomer | null;
+  customer: CustomerRecord | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit: (customer: CorporateCustomer) => void;
+  onEdit: (customer: CustomerRecord) => void;
 }
 
 export function CustomerDetailsModal({
@@ -54,6 +55,30 @@ export function CustomerDetailsModal({
 
   if (!isOpen || !customer) return null;
 
+  const deliveryAddress =
+    customer.customer_addresses?.find(
+      (a) => a.address_type === "delivery" && a.is_default
+    ) || customer.customer_addresses?.find((a) => a.address_type === "delivery");
+
+  const deliveryLocationText = deliveryAddress
+    ? [deliveryAddress.address_line, deliveryAddress.city, deliveryAddress.pincode]
+        .filter(Boolean)
+        .join(", ")
+    : "Location unassigned";
+
+  const billingAddress =
+    customer.customer_addresses?.find(
+      (a) => a.address_type === "billing" && a.is_default
+    ) || customer.customer_addresses?.find((a) => a.address_type === "billing");
+
+  const billingAddressText = billingAddress
+    ? [billingAddress.address_line, billingAddress.city, billingAddress.pincode]
+        .filter(Boolean)
+        .join(", ")
+    : "No registered billing address specified.";
+
+  const primaryContact = customer.customer_contacts?.[0];
+
   return (
     <div
       role="dialog"
@@ -67,26 +92,30 @@ export function CustomerDetailsModal({
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-[2px] bg-[#c7a45b]/20 text-[#8e7139] border border-[#dcd0b5] uppercase">
-                {customer.shortCode}
+                {customer.customer_code}
               </span>
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded-[2px] border ${
-                  customer.contractStatus === "Active Daily Contract"
+                  customer.contract_status === "Active Daily Contract"
                     ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                    : "bg-amber-50 text-amber-800 border-amber-200"
+                    : customer.contract_status === "Periodic Orders"
+                    ? "bg-blue-50 text-blue-800 border-blue-200"
+                    : customer.contract_status === "In Review"
+                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                    : "bg-stone-100 text-stone-700 border-stone-200"
                 }`}
               >
-                {customer.contractStatus}
+                {customer.contract_status}
               </span>
             </div>
             <h3
               id="customer-details-title"
               className="font-serif text-[20px] font-bold text-[#123c2c] m-0"
             >
-              {customer.name}
+              {customer.company_name}
             </h3>
             <span className="text-xs text-[#69746a] mt-0.5 block">
-              Unit: <strong>{customer.deliveryLocation}</strong>
+              Unit: <strong>{deliveryLocationText}</strong>
             </span>
           </div>
 
@@ -95,7 +124,7 @@ export function CustomerDetailsModal({
             type="button"
             onClick={onClose}
             aria-label="Close customer details"
-            className="w-8 h-8 rounded-full border border-[#dcd0b5] bg-white hover:bg-[#eee7d7] text-[#17271e] grid place-items-center transition-colors"
+            className="w-8 h-8 rounded-full border border-[#dcd0b5] bg-white hover:bg-[#eee7d7] text-[#17271e] grid place-items-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -111,7 +140,11 @@ export function CustomerDetailsModal({
               </span>
               <div className="flex items-center gap-1.5 text-base font-bold text-[#123c2c]">
                 <DollarSign className="w-4 h-4 text-[#8e7139]" />
-                <span>₹{customer.defaultRate.toFixed(2)} / meal</span>
+                <span>
+                  {customer.default_rate !== null && customer.default_rate !== undefined
+                    ? `₹${Number(customer.default_rate).toFixed(2)} / meal`
+                    : "Not configured"}
+                </span>
               </div>
             </div>
 
@@ -121,7 +154,7 @@ export function CustomerDetailsModal({
               </span>
               <div className="flex items-center gap-1.5 font-bold text-[#123c2c]">
                 <Tag className="w-4 h-4 text-[#8e7139]" />
-                <span>{customer.defaultPreset}</span>
+                <span>{customer.default_preset || "Not configured"}</span>
               </div>
             </div>
           </div>
@@ -135,13 +168,13 @@ export function CustomerDetailsModal({
               <div>
                 <span className="text-[#69746a] block text-[11px]">GSTIN:</span>
                 <span className="font-mono font-bold text-[#17271e] text-xs">
-                  {customer.gstin}
+                  {customer.gstin || "Pending confirmation"}
                 </span>
               </div>
               <div>
                 <span className="text-[#69746a] block text-[11px]">PAN:</span>
                 <span className="font-mono font-bold text-[#17271e] text-xs">
-                  {customer.pan}
+                  {customer.pan || "Pending confirmation"}
                 </span>
               </div>
             </div>
@@ -154,21 +187,44 @@ export function CustomerDetailsModal({
             </span>
             <div className="flex items-start gap-2 text-[#17271e]">
               <MapPin className="w-4 h-4 text-[#8e7139] shrink-0 mt-0.5" />
-              <p className="m-0 leading-relaxed font-medium">{customer.billingAddress}</p>
+              <p className="m-0 leading-relaxed font-medium">{billingAddressText}</p>
             </div>
           </div>
 
-          {/* Contact Details Notice */}
-          <div className="p-4 rounded-[2px] bg-white border border-[#e5ddcd] space-y-1.5">
+          {/* Primary Contact Details */}
+          <div className="p-4 rounded-[2px] bg-white border border-[#e5ddcd] space-y-2">
             <span className="text-[10px] font-bold text-[#8e7139] uppercase tracking-wider block">
               Contact Coordination Status
             </span>
-            <div className="flex items-start gap-2 text-amber-800 bg-amber-50 p-2.5 rounded-[2px] border border-amber-200">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
-              <span className="text-[11px] leading-relaxed">
-                Contact person details are marked as <strong>{customer.contactPerson}</strong>. Official business phone and email should be confirmed before initiating automated SMS or email dispatch.
-              </span>
-            </div>
+            {primaryContact ? (
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-[#17271e]">
+                  <User className="w-3.5 h-3.5 text-[#8e7139]" />
+                  <span className="font-semibold">{primaryContact.contact_name}</span>
+                  {primaryContact.designation && (
+                    <span className="text-[#69746a]">({primaryContact.designation})</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-[#516052]">
+                  <Phone className="w-3.5 h-3.5 text-[#8e7139]" />
+                  <span>{primaryContact.phone}</span>
+                </div>
+                {primaryContact.email && (
+                  <div className="flex items-center gap-2 text-[#516052]">
+                    <Mail className="w-3.5 h-3.5 text-[#8e7139]" />
+                    <span>{primaryContact.email}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-start gap-2 text-amber-800 bg-amber-50 p-2.5 rounded-[2px] border border-amber-200">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                <span className="text-[11px] leading-relaxed">
+                  Primary plant coordinator details are marked as <strong>Pending confirmation</strong>.
+                  Official business contact should be confirmed before initiating automated SMS or delivery dispatch.
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Delivery & Operational Notes */}
@@ -190,7 +246,7 @@ export function CustomerDetailsModal({
               onClose();
               onEdit(customer);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-white border border-[#dcd0b5] hover:bg-[#faf7ef] transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] text-xs font-bold text-[#123c2c] bg-white border border-[#dcd0b5] hover:bg-[#faf7ef] transition-colors cursor-pointer"
           >
             <Edit2 className="w-3.5 h-3.5 text-[#8e7139]" />
             <span>Edit Profile</span>

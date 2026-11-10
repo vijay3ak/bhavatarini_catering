@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   FileText,
   Building2,
@@ -20,35 +21,62 @@ import { InvoiceStatusBadge } from "./invoice-status-badge";
 
 interface InvoiceArchiveTableProps {
   invoices: ArchivedInvoice[];
+  hasActiveFilters?: boolean;
   onResetFilters: () => void;
   onViewInvoice?: (invoice: ArchivedInvoice) => void;
+  onRecordPayment?: (invoice: ArchivedInvoice) => void;
 }
 
 export function InvoiceArchiveTable({
   invoices,
+  hasActiveFilters = false,
   onResetFilters,
   onViewInvoice,
+  onRecordPayment,
 }: InvoiceArchiveTableProps) {
   if (invoices.length === 0) {
+    if (hasActiveFilters) {
+      return (
+        <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-12 text-center shadow-xs">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#faf7ef] border border-[#dcd0b5] text-[#8e7139] mb-4">
+            <FileX className="w-7 h-7" />
+          </div>
+          <h3 className="font-serif text-lg font-bold text-[#123c2c] m-0">
+            No Invoices Match Filters
+          </h3>
+          <p className="text-xs text-[#69746a] max-w-md mx-auto mt-1 mb-5">
+            No archived invoices match your active search terms or filter selection. Try clearing or relaxing your filter criteria.
+          </p>
+          <button
+            type="button"
+            onClick={onResetFilters}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#eee7d7] border border-[#dcd0b5] rounded-[2px] transition-colors shadow-xs"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
+            <span>Reset Filters &amp; Show All</span>
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="rounded-[2px] border border-[#e5ddcd] bg-[#ffffff] p-12 text-center shadow-xs">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#faf7ef] border border-[#dcd0b5] text-[#8e7139] mb-4">
-          <FileX className="w-7 h-7" />
+          <FileText className="w-7 h-7" />
         </div>
         <h3 className="font-serif text-lg font-bold text-[#123c2c] m-0">
-          No Invoices Found
+          No Invoices Issued Yet
         </h3>
         <p className="text-xs text-[#69746a] max-w-md mx-auto mt-1 mb-5">
-          No archived invoices match your active search terms or filter selection. Try clearing or relaxing your filter criteria.
+          No customer invoices have been issued in the system yet. Once invoices are finalized from the Monthly Billing ledger, they will automatically appear here.
         </p>
-        <button
-          type="button"
-          onClick={onResetFilters}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#eee7d7] border border-[#dcd0b5] rounded-[2px] transition-colors shadow-xs"
+        <Link
+          href="/admin/billing"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#ffffff] bg-[#123c2c] hover:bg-[#1b4d39] rounded-[2px] transition-colors shadow-xs"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-[#8e7139]" />
-          <span>Reset Filters &amp; Show All</span>
-        </button>
+          <ArrowRight className="w-3.5 h-3.5 text-[#c7a45b]" />
+          <span>Go to Monthly Billing</span>
+        </Link>
       </div>
     );
   }
@@ -108,7 +136,7 @@ export function InvoiceArchiveTable({
                       <span className="font-semibold text-[#8e7139]">
                         {inv.customer.shortCode}
                       </span>
-                      <span>•</span>
+                      <span>â€¢</span>
                       <span className="truncate max-w-[140px]" title={inv.unitLocation}>
                         {inv.unitLocation}
                       </span>
@@ -145,7 +173,7 @@ export function InvoiceArchiveTable({
 
                 {/* 6. Rate */}
                 <td className="py-3.5 px-4 text-right whitespace-nowrap font-mono text-xs font-semibold text-[#17271e]">
-                  ₹{inv.rate.toFixed(2)}
+                  â‚¹{inv.rate.toFixed(2)}
                 </td>
 
                 {/* 7. Total Amount */}
@@ -162,14 +190,27 @@ export function InvoiceArchiveTable({
 
                 {/* 9. Actions */}
                 <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                  <button
-                    type="button"
-                    onClick={() => onViewInvoice?.(inv)}
-                    className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#123c2c] hover:text-[#faf8f1] border border-[#dcd0b5] rounded-[2px] transition-colors cursor-pointer shadow-2xs"
-                  >
-                    <span>Inspect</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
+                  <div className="flex items-center justify-center gap-1.5">
+                    {onRecordPayment && inv.status !== "CANCELLED" && inv.status !== "DRAFT" && inv.status !== "PAID" && (
+                      <button
+                        type="button"
+                        onClick={() => onRecordPayment(inv)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-[2px] transition-colors cursor-pointer shadow-2xs"
+                        title="Record payment transaction"
+                      >
+                        <IndianRupee className="w-3 h-3 text-emerald-600" />
+                        <span>Pay</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onViewInvoice?.(inv)}
+                      className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#123c2c] hover:text-[#faf8f1] border border-[#dcd0b5] rounded-[2px] transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <span>Inspect</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -210,7 +251,7 @@ export function InvoiceArchiveTable({
               <div>
                 <span className="text-[10px] text-[#69746a] uppercase font-semibold">Meals / Rate</span>
                 <p className="font-mono text-[#17271e] m-0">
-                  {inv.kpis.totalBillQty} @ ₹{inv.rate.toFixed(2)}
+                  {inv.kpis.totalBillQty} @ â‚¹{inv.rate.toFixed(2)}
                 </p>
               </div>
               <div>
@@ -221,14 +262,26 @@ export function InvoiceArchiveTable({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => onViewInvoice?.(inv)}
-              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#123c2c] hover:text-[#faf8f1] border border-[#dcd0b5] rounded-[2px] transition-colors"
-            >
-              <span>Inspect Invoice</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+              {onRecordPayment && inv.status !== "CANCELLED" && inv.status !== "DRAFT" && inv.status !== "PAID" && (
+                <button
+                  type="button"
+                  onClick={() => onRecordPayment(inv)}
+                  className="w-full sm:flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-[2px] transition-colors"
+                >
+                  <IndianRupee className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Record Payment</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => onViewInvoice?.(inv)}
+                className="w-full sm:flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-[#123c2c] bg-[#faf7ef] hover:bg-[#123c2c] hover:text-[#faf8f1] border border-[#dcd0b5] rounded-[2px] transition-colors"
+              >
+                <span>Inspect Invoice</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
