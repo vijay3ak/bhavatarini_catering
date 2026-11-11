@@ -4,11 +4,20 @@ import crypto from "crypto";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { processNotificationOutbox } from "@/lib/services/outbox-processor";
 
-// Security salt loaded from environment configuration with secure fallback
-const ENQUIRY_SALT =
-  process.env.ENQUIRY_SALT ||
-  process.env.ENQUIRY_IP_SALT ||
-  "bhavatarini_enquiry_salt_v1_secure_coimbatore";
+// Security salt loaded lazily at request time from server environment configuration
+function getEnquirySalt(): string {
+  const salt =
+    process.env.ENQUIRY_SALT?.trim() ||
+    process.env.ENQUIRY_IP_SALT?.trim();
+
+  if (!salt) {
+    throw new Error(
+      "Missing ENQUIRY_SALT (or ENQUIRY_IP_SALT) environment variable in server configuration."
+    );
+  }
+
+  return salt;
+}
 
 // In-memory sliding window rate limiter: max 5 requests per 10 minutes per IP hash
 const ipRateLimitMap = new Map<string, number[]>();
@@ -147,7 +156,7 @@ export async function POST(request: NextRequest) {
 
     const ipHash = crypto
       .createHash("sha256")
-      .update(clientIp + "_" + ENQUIRY_SALT)
+      .update(clientIp + "_" + getEnquirySalt())
       .digest("hex")
       .slice(0, 64);
 
